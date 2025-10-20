@@ -5,6 +5,7 @@ system:
     - /system/register
     - /system/oss/download/**
     - /system/white/routes
+    - /biz/trans/preview
 
 server:
   port: ${server.port}

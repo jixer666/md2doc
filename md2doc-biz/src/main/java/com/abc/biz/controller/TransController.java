@@ -1,0 +1,69 @@
+package com.abc.biz.controller;
+
+import com.abc.biz.domain.vo.TransVO;
+import com.abc.common.domain.vo.ApiResult;
+import com.abc.common.domain.vo.PageResult;
+import com.abc.biz.domain.dto.TransDTO;
+import com.abc.biz.service.TransService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * MD转换控制器
+ *
+ * @author LiJunXi
+ * @date 2025-10-20
+ */
+@Api(tags = "MD转换接口")
+@RestController
+@RequestMapping("/biz/trans")
+public class TransController {
+
+    @Autowired
+    private TransService transService;
+
+    @ApiOperation("查询MD转换分页")
+    @GetMapping("/page")
+    public ApiResult<PageResult> getTransPage(TransDTO transDTO) {
+        PageResult transPages = transService.getTransPageWithUiParam(transDTO);
+
+        return ApiResult.success(transPages);
+    }
+
+    @ApiOperation("更新MD转换")
+    @PutMapping
+    public ApiResult<Void> updateTrans(@RequestBody TransDTO transDTO) {
+        transService.updateTrans(transDTO);
+
+        return ApiResult.success();
+    }
+
+    @ApiOperation("新增MD转换")
+    @PostMapping
+    public ApiResult<Void> saveTrans(@RequestBody TransDTO transDTO) {
+        transService.saveTrans(transDTO);
+
+        return ApiResult.success();
+    }
+
+    @ApiOperation("删除MD转换")
+    @DeleteMapping
+    public ApiResult<Void> deleteTrans(@RequestBody TransDTO transDTO) {
+        transService.deleteTrans(transDTO);
+
+        return ApiResult.success();
+    }
+
+    @ApiOperation("预览")
+    @PostMapping("/preview")
+    public ApiResult<TransVO> previewTransMd(@RequestBody TransDTO transDTO) {
+        TransVO transVO = transService.previewTransMd(transDTO);
+
+        return ApiResult.success(transVO);
+    }
+
+
+
+}

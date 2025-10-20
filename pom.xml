@@ -12,6 +12,7 @@
         <module>md2doc-system</module>
         <module>md2doc-common</module>
         <module>md2doc-api</module>
+        <module>md2doc-biz</module>
     </modules>
 
     <properties>
@@ -164,6 +165,11 @@
             <dependency>
                 <groupId>com.abc</groupId>
                 <artifactId>md2doc-system</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.abc</groupId>
+                <artifactId>md2doc-biz</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>

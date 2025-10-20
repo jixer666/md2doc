@@ -1,5 +1,5 @@
 import router, { dynamicRoutes, constantRoutes } from '@/router'
-import {getRoutes, getWhiteRoutes} from '@/api/system/role'
+import { getRoutes, getWhiteRoutes } from '@/api/system/role'
 import Layout from '@/layout/index'
 import store from '@/store'
 import auth from '@/utils/auth'
@@ -113,8 +113,7 @@ const mutations = {
       }
       return true
     })
-    console.log(filterFrontRouters)
-    state.sidebarRouters = filterFrontRouters;
+    state.sidebarRouters = filterFrontRouters
   }
 }
 
@@ -126,9 +125,9 @@ const actions = {
         const rdata = JSON.parse(JSON.stringify(res.data))
         const sidebarRoutes = filterAsyncRouter(sdata)
         const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-        const asyncRoutes = filterDynamicRoutes(dynamicRoutes);
+        const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
         rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
-        router.addRoutes(asyncRoutes);
+        router.addRoutes(asyncRoutes)
         commit('SET_ROUTES', rewriteRoutes)
         commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
         commit('SET_DEFAULT_ROUTES', sidebarRoutes)
@@ -143,7 +142,7 @@ const actions = {
         const rdata = JSON.parse(JSON.stringify(res.data))
         const rewriteRoutes = filterAsyncRouter(rdata, false, true)
         const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
-        rewriteRoutes.push({path: '*', redirect: '/404', hidden: true})
+        rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
         commit('SET_ROUTES', rewriteRoutes)
         router.addRoutes(asyncRoutes)
 
