@@ -20,12 +20,9 @@ public class TransDTO {
 
     private Long userId;
 
-    private String content;
+    private String preContent;
 
-    private String filePath;
-
-    private Date createTine;
-
+    private String transContent;
 
     // 用于批量删除
     private List<Long> transIds;
@@ -46,6 +43,12 @@ public class TransDTO {
 
     public void checkPreviewParams() {
         AssertUtils.isNotEmpty(this, "转换参数不能为空");
-        AssertUtils.isNotEmpty(content, "转换内容不能为空");
+        AssertUtils.isNotEmpty(preContent, "转换内容不能为空");
     }
+
+    public void checkExportParams() {
+        AssertUtils.isNotEmpty(this, "转换参数不能为空");
+        AssertUtils.isNotEmpty(preContent, "转换内容不能为空");
+    }
+
 }

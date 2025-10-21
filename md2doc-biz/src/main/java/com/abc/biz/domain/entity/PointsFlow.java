@@ -9,32 +9,34 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 /**
- * MD转换实体
+ * 积分流水实体
  *
  * @author LiJunXi
- * @date 2025-10-20
+ * @date 2025-10-21
  */
 @Data
 @Builder
-@TableName("tb_trans")
+@TableName("tb_points_flow")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Trans extends BaseEntity {
+public class PointsFlow extends BaseEntity {
 
     @TableId
-    @ApiModelProperty("转换ID")
-    private Long transId;
+    @ApiModelProperty("流水ID")
+    private Long flowId;
 
     @ApiModelProperty("用户ID")
     private Long userId;
 
-    @ApiModelProperty("转换前MD内容")
-    private String preContent;
+    @ApiModelProperty("积分规则类型")
+    private Integer ruleType;
 
-    @ApiModelProperty("转换后MD内容")
-    private String transContent;
+    @ApiModelProperty("变化积分")
+    private Integer changePoints;
+
+    @ApiModelProperty("变化后积分")
+    private Integer totalPoints;
 
 
 }

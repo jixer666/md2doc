@@ -8,8 +8,7 @@ import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
 
@@ -31,6 +30,8 @@ router.beforeEach(async (to, from, next) => {
         next()
       } else {
         try {
+          await store.dispatch('settings/getWhiteList')
+
           // get user info
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
           const { roles } = await store.dispatch('user/getInfo')
@@ -59,7 +60,7 @@ router.beforeEach(async (to, from, next) => {
     }
   } else {
     if (store.getters.whiteList && store.getters.whiteList.length > 0) {
-      next();
+      next()
     } else {
       const whiteList = await store.dispatch('settings/getWhiteList')
       /* has no token*/

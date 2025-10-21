@@ -4,14 +4,20 @@
       <div class="navbar">
         <div class="logo">MD2DOC</div>
         <div class="nav-slogan">
-          <span class="slogan-text">AI智能解析 · 专业格式转换 · 多平台无缝对接 · 高效文档生产力</span>
+          <span class="slogan-text">AI智能解析 · 多平台无缝对接 · 一键格式转换Word文档 · </span>
         </div>
         <div class="nav-actions">
-          <el-tooltip class="item" effect="dark" content="若预览格式有问题，可以登录后用AI专业转换解决" placement="bottom">
-            <el-button size="small" icon="el-icon-question" @click="previewMdContent">免费转换预览</el-button>
+          <el-tooltip class="item" effect="dark" placement="bottom">
+            <div slot="content">
+              <div>若预览数学符号等格式有问题，点击可对特殊符号内容进行转换</div>
+              <div>若转换后问题任然出现，可以登录后用AI专业格式转换解决</div>
+            </div>
+            <el-button size="small" icon="el-icon-question" @click="previewMdContent">免费格式转换</el-button>
           </el-tooltip>
-          <el-button v-if="isLogin" size="small" icon="el-icon-question" @click="previewMdContent">AI专业转换</el-button>
-          <el-button type="primary" size="small" @click="openLoginDrawer">导出</el-button>
+          <el-button v-if="isLogin" type="danger" size="small" @click="previewMdContent">AI专业转换</el-button>
+          <el-button type="primary" size="small" :loading="exportLoading" @click="exportMdContent">导出文档</el-button>
+
+          <el-avatar v-if="isLogin" :src="$store.getters.avatar" :size="35" class="u-avatar" @click.native="openUserDrawer" />
         </div>
       </div>
     </el-header>
@@ -42,17 +48,21 @@
 
     <!-- 登录抽屉组件 -->
     <login-drawer ref="loginDrawer" />
+    <user-drawer ref="userDrawer" />
+
   </div>
 </template>
 
 <script>
-import { previewTransMd } from '@/api/biz/trans'
+import { previewTransMd, exportTransMd } from '@/api/biz/trans'
 import LoginDrawer from './login/index.vue'
+import UserDrawer from './user/index.vue'
 
 export default {
   name: 'HomeView',
   components: {
-    LoginDrawer
+    LoginDrawer,
+    UserDrawer
   },
   data() {
     return {
@@ -63,7 +73,8 @@ export default {
         'undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code',
       // 自定义右侧工具栏
       rightToolbar: 'fullscreen',
-      isLogin: false
+      isLogin: false,
+      exportLoading: false
     }
   },
   mounted() {
@@ -75,7 +86,7 @@ export default {
         return
       }
       previewTransMd({
-        content: this.text
+        preContent: this.text
       }).then((res) => {
         this.previewContent = res.data.content
       })
@@ -88,6 +99,25 @@ export default {
       if (!this.isLogin) {
         this.$refs.loginDrawer.openDrawer()
       }
+    },
+    openUserDrawer() {
+      this.$refs.userDrawer.openDrawer()
+    },
+    exportMdContent() {
+      if (!this.isLogin) {
+        this.openLoginDrawer()
+        return
+      }
+      this.exportLoading = true
+      exportTransMd({
+        preContent: this.previewContent
+      }).then(res => {
+        this.$modal.msgSuccess('导出成功')
+        this.exportLoading = false
+      }).catch(error => {
+        console.error('操作失败:', error)
+        this.exportLoading = false
+      })
     }
   }
 }
@@ -101,7 +131,7 @@ export default {
   width: 100%;
   background-color: #f5f5f5;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: hidden;
 }
 
 .header {
@@ -117,7 +147,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   height: 60px;
-  padding: 0 20px;
+  padding: 0 40px;
   position: relative;
 }
 
@@ -140,14 +170,14 @@ export default {
   font-size: 16px;
   color: #606266;
   font-weight: 500;
-  background: linear-gradient(135deg, #409eff, #67c23a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  white-space: nowrap;
+  //background: linear-gradient(135deg, #409eff, #67c23a);
+  //-webkit-background-clip: text;
+  //-webkit-text-fill-color: transparent;
+  //background-clip: text;
+  //white-space: nowrap;
   padding: 4px 12px;
   border-radius: 6px;
-  background-color: rgba(64, 158, 255, 0.08);
+  //background-color: rgba(64, 158, 255, 0.08);
 }
 
 .nav-actions {
@@ -215,6 +245,11 @@ export default {
 
 .editor ::v-deep .scrollbar__wrap {
   overflow: auto;
+}
+
+.u-avatar {
+  margin-left: 30px;
+  cursor: pointer;
 }
 
 /* 响应式设计 */

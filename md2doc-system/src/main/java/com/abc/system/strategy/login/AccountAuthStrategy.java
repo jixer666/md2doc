@@ -7,6 +7,7 @@ import com.abc.system.domain.dto.LoginDTO;
 import com.abc.common.domain.dto.LoginUserDTO;
 import com.abc.system.domain.dto.RegisterDTO;
 import com.abc.common.domain.entity.User;
+import com.abc.system.service.IndexService;
 import com.abc.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,9 @@ public class AccountAuthStrategy implements AuthStrategy {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private IndexService indexService;
 
     @Override
     public LoginUserDTO authenticate(LoginDTO loginDTO) {
@@ -42,11 +46,21 @@ public class AccountAuthStrategy implements AuthStrategy {
         preRegisterCheck(registerDTO);
         User user = UserConvert.convertToUserByRegisterDTO(registerDTO);
         userService.saveUser(user);
+        afterRegister(registerDTO);
     }
 
     public void preRegisterCheck(RegisterDTO registerDTO) {
         registerDTO.checkParams();
         User user = userService.getUserByUsername(registerDTO.getUsername());
         AssertUtils.isEmpty(user, "用户已存在");
+
+        Boolean checkCaptcha = indexService.checkCaptchaImg(registerDTO.getUuid(), registerDTO.getCode());
+        AssertUtils.isTrue(checkCaptcha, "验证码错误");
+    }
+
+    private void afterRegister(RegisterDTO registerDTO) {
+        indexService.invalidCaptcha(registerDTO.getUuid());
+
+
     }
 }

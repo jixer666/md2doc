@@ -1,7 +1,9 @@
 package com.abc.system.service;
 
+import com.abc.system.domain.dto.CaptchaDTO;
 import com.abc.system.domain.dto.LoginDTO;
 import com.abc.system.domain.dto.RegisterDTO;
+import com.abc.system.domain.vo.CaptchaVO;
 import com.abc.system.domain.vo.MenuRouterVO;
 
 import java.util.List;
@@ -14,4 +16,10 @@ public interface IndexService {
     List<MenuRouterVO> getMenuRoutes();
 
     List<MenuRouterVO> getMenuWhiteRoutes();
+
+    CaptchaVO getCaptchaImg(CaptchaDTO captchaDTO);
+
+    Boolean checkCaptchaImg(String uuid, String code);
+
+    void invalidCaptcha(String uuid);
 }

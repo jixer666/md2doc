@@ -8,6 +8,7 @@ import com.abc.biz.service.TransService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -64,6 +65,19 @@ public class TransController {
         return ApiResult.success(transVO);
     }
 
+    @ApiOperation("AI专业转换")
+    @PostMapping("/ai/preview")
+    public ApiResult<TransVO> previewTransMdByAi(@RequestBody TransDTO transDTO) {
+        TransVO transVO = transService.previewTransMdByAi(transDTO);
+
+        return ApiResult.success(transVO);
+    }
+
+    @ApiOperation("导出")
+    @PostMapping("/export")
+    public ResponseEntity<byte[]> exportTransMd(@RequestBody TransDTO transDTO) {
+        return transService.exportTransMd(transDTO);
+    }
 
 
 }

@@ -8,10 +8,18 @@ export function login(data) {
   })
 }
 
+export function register(data) {
+  return request({
+    url: '/system/register',
+    method: 'post',
+    data
+  })
+}
+
 export function getInfo() {
   return request({
     url: '/system/user/info',
-    method: 'get',
+    method: 'get'
   })
 }
 
@@ -33,7 +41,7 @@ export function getUserPage(data) {
 export function getUserRole(userId) {
   return request({
     url: '/system/user/getUserRole/' + userId,
-    method: 'get',
+    method: 'get'
   })
 }
 
@@ -69,3 +77,10 @@ export function updateUser(data) {
   })
 }
 
+export function getCaptchaImg(data) {
+  return request({
+    url: '/system/captcha',
+    method: 'get',
+    params: data
+  })
+}

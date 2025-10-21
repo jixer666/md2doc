@@ -199,4 +199,10 @@ public class CommonConstants {
      */
     public static final String SYSTEM_NAME = "md2doc";
 
+    /**
+     * 匿名用户账号
+     */
+    public static final String ANONYMOUS_USER = "anonymous";
+
+
 }

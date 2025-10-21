@@ -1,8 +1,10 @@
 package com.abc.system.controller;
 
 import com.abc.common.domain.vo.ApiResult;
+import com.abc.system.domain.dto.CaptchaDTO;
 import com.abc.system.domain.dto.LoginDTO;
 import com.abc.system.domain.dto.RegisterDTO;
+import com.abc.system.domain.vo.CaptchaVO;
 import com.abc.system.domain.vo.MenuRouterVO;
 import com.abc.system.service.IndexService;
 import io.swagger.annotations.ApiOperation;
@@ -51,4 +53,11 @@ public class IndexController {
         return ApiResult.success(routers);
     }
 
+    @ApiOperation("获取图形验证码")
+    @GetMapping("/captcha")
+    public ApiResult<CaptchaVO> getCaptchaImg(CaptchaDTO captchaDTO) {
+        CaptchaVO captchaVO = indexService.getCaptchaImg(captchaDTO);
+
+        return ApiResult.success(captchaVO);
+    }
 }

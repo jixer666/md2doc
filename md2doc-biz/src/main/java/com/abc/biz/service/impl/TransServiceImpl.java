@@ -1,7 +1,13 @@
 package com.abc.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.abc.biz.domain.dto.AiCallbackDTO;
+import com.abc.biz.domain.dto.AiMessageDTO;
+import com.abc.biz.domain.enums.PointsRuleTypeEnum;
+import com.abc.biz.service.AiService;
+import com.abc.biz.service.component.PointsServiceHelper;
 import com.abc.biz.util.MarkdownLatexCleaner;
+import com.abc.biz.util.PandocUtil;
 import com.abc.common.core.service.BaseServiceImpl;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.common.util.AssertUtils;
@@ -11,9 +17,14 @@ import com.abc.biz.domain.entity.Trans;
 import com.abc.biz.domain.vo.TransVO;
 import com.abc.biz.mapper.TransMapper;
 import com.abc.biz.service.TransService;
+import com.abc.common.util.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
@@ -23,11 +34,18 @@ import java.util.List;
  * @author LiJunXi
  * @date 2025-10-20
  */
+@Slf4j
 @Service
 public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implements TransService {
 
     @Autowired
     private TransMapper transMapper;
+
+    @Autowired
+    private AiService aiService;
+
+    @Autowired
+    private PointsServiceHelper pointsServiceHelper;
 
     @Override
     public PageResult getTransPageWithUiParam(TransDTO transDTO) {
@@ -67,9 +85,57 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
     public TransVO previewTransMd(TransDTO transDTO) {
         transDTO.checkPreviewParams();
 
-        TransVO transVO = new TransVO();
-        transVO.setContent(MarkdownLatexCleaner.cleanLatex(transDTO.getContent()));
+        String content = MarkdownLatexCleaner.cleanLatex(transDTO.getPreContent());
 
-        return transVO;
+        if (!SecurityUtils.isAnonymousUser()) {
+            saveTransByTransDTOAndContent(transDTO, content);
+        }
+
+        return TransConvert.buildTransVOByContent(content);
+    }
+
+    private void saveTransByTransDTOAndContent(TransDTO transDTO, String content) {
+        AssertUtils.isNotEmpty(transDTO, "转换参数不能为空");
+        AssertUtils.isNotEmpty(content, "转换后内容不能为空");
+
+        transDTO.setTransContent(content);
+        saveTrans(transDTO);
+    }
+
+    @Override
+    @Transactional
+    public TransVO previewTransMdByAi(TransDTO transDTO) {
+        transDTO.checkPreviewParams();
+
+        return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
+            List<AiMessageDTO> messageList = TransConvert.buildAiMessageDTOByContent(transDTO.getPreContent());
+            String result = getAiCallMessageResult(messageList);
+            saveTransByTransDTOAndContent(transDTO, result);
+            return TransConvert.buildTransVOByContent(result);
+        });
+    }
+
+    private String getAiCallMessageResult(List<AiMessageDTO> messageList) {
+        WebClient.ResponseSpec responseSpec = aiService.callAiServer(messageList, true);
+        return responseSpec.bodyToMono(AiCallbackDTO.class)
+                .filter(response -> response.getChoices() != null && !response.getChoices().isEmpty())
+                .map(response -> {
+                    AiCallbackDTO.Choice choice = response.getChoices().get(0);
+                    if (choice == null || choice.getMessage() == null) {
+                        return "";
+                    }
+                    String content = choice.getMessage().getContent();
+                    return content != null ? content : "";
+                }).block();
+    }
+
+    @Override
+    public ResponseEntity<byte[]> exportTransMd(TransDTO transDTO) {
+        transDTO.checkExportParams();
+
+        return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
+            byte[] data = PandocUtil.transMdToWord(transDTO.getPreContent());
+            return  download(data, "export.doc");
+        });
     }
 }

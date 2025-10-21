@@ -5,6 +5,7 @@ import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.TransDTO;
 import com.abc.biz.domain.entity.Trans;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.http.ResponseEntity;
 
 /**
  * MD转换接口
@@ -23,4 +24,8 @@ public interface TransService extends IService<Trans> {
     void deleteTrans(TransDTO transDTO);
 
     TransVO previewTransMd(TransDTO transDTO);
+
+    TransVO previewTransMdByAi(TransDTO transDTO);
+
+    ResponseEntity<byte[]> exportTransMd(TransDTO transDTO);
 }
