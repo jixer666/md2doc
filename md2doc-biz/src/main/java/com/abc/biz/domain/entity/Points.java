@@ -33,7 +33,7 @@ public class Points extends BaseEntity {
     private Integer totalPoints;
 
     @ApiModelProperty("可用积分")
-    private Integer availablePoints ;
+    private Integer availablePoints;
 
     @ApiModelProperty("冻结积分")
     private Integer frozenPoints ;

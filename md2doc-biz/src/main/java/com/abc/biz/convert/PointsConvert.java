@@ -3,6 +3,7 @@ package com.abc.biz.convert;
 import cn.hutool.core.bean.BeanUtil;
 import com.abc.biz.domain.dto.PointsDTO;
 import com.abc.biz.domain.entity.Points;
+import com.abc.biz.domain.vo.PointsVO;
 
 /**
  * 积分转换器
@@ -26,5 +27,9 @@ public class PointsConvert {
         pointsDTO.setRuleType(ruleType);
 
         return pointsDTO;
+    }
+
+    public static PointsVO buildPointsVOByPoints(Points points) {
+        return BeanUtil.copyProperties(points, PointsVO.class);
     }
 }

@@ -17,10 +17,10 @@ public class TransVO {
 
     private Long userId;
 
-    private String content;
+    private String preContent;
 
-    private String filePath;
+    private String transContent;
 
-    private Date createTine;
+    private Date createTime;
 
 }

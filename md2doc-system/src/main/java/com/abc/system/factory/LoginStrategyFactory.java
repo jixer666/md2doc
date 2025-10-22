@@ -22,12 +22,12 @@ public class LoginStrategyFactory {
     @PostConstruct
     public void init(){
         applicationContext.getBeansOfType(AuthStrategy.class).forEach((k, v)->{
-            LOGIN_MAP.put(LoginTypeEnum.getTypeByLoginKey(k), v);
+            LOGIN_MAP.put(LoginTypeEnum.getTypeByClass(k), v);
         });
     }
 
     public static AuthStrategy getAuthStrategy(Integer loginType){
-        Integer type = LoginTypeEnum.getTypeByLoginType(loginType);
+        Integer type = LoginTypeEnum.getClassByType(loginType);
         AssertUtils.isNotEmpty(type, "认证方式不存在");
         return LOGIN_MAP.get(type);
     }

@@ -62,7 +62,41 @@
               />
             </el-form-item>
 
-            <el-form-item v-if="!isLogin" prop="confirmPassword">
+            <!-- 注册时需要邮箱 -->
+            <el-form-item v-if="!isLogin" prop="email">
+              <el-input
+                v-model="formData.email"
+                type="email"
+                placeholder="请输入邮箱"
+                prefix-icon="el-icon-message"
+                clearable
+              />
+            </el-form-item>
+
+            <!-- 注册时需要邮箱验证码 -->
+            <el-form-item v-if="!isLogin" prop="emailCode">
+              <el-row :gutter="10">
+                <el-col :span="14">
+                  <el-input
+                    v-model="formData.emailCode"
+                    placeholder="请输入邮箱验证码"
+                    prefix-icon="el-icon-key"
+                    clearable
+                  />
+                </el-col>
+                <el-col :span="10">
+                  <el-button
+                    :disabled="isSendEmailCodeDisabled"
+                    style="width: 100%"
+                    @click="sendEmailCode"
+                  >
+                    {{ emailCodeButtonText }}
+                  </el-button>
+                </el-col>
+              </el-row>
+            </el-form-item>
+
+            <el-form-item v-if="!isLogin" prop="code">
               <el-row>
                 <el-col :span="8">
                   <el-image
@@ -74,9 +108,8 @@
                 <el-col :span="16">
                   <el-input
                     v-model="formData.code"
-                    type="password"
-                    placeholder="请确认验证码"
-                    show-password
+                    type="text"
+                    placeholder="请输入图形验证码"
                   />
                 </el-col>
               </el-row>
@@ -118,6 +151,7 @@
 
 <script>
 import { getCaptchaImg, register } from '@/api/system/user'
+import { sendRegisterEmail } from '@/api/system/email'
 
 export default {
   name: 'LoginDrawer',
@@ -131,17 +165,57 @@ export default {
       }
     }
 
+    // 邮箱验证规则
+    const validateEmail = (rule, value, callback) => {
+      if (!this.isLogin && !value) {
+        callback(new Error('请输入邮箱'))
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!this.isLogin && !emailRegex.test(value)) {
+          callback(new Error('请输入正确的邮箱格式'))
+        } else {
+          callback()
+        }
+      }
+    }
+
+    // 邮箱验证码验证规则
+    const validateEmailCode = (rule, value, callback) => {
+      if (!this.isLogin && !value) {
+        callback(new Error('请输入邮箱验证码'))
+      } else {
+        callback()
+      }
+    }
+
+    const validateCode = (rule, value, callback) => {
+      if (!this.isLogin && !value) {
+        callback(new Error('请输入图形验证码'))
+      } else {
+        callback()
+      }
+    }
+
     return {
       drawer: false, // 控制抽屉显示
       isLogin: true, // true为登录模式，false为注册模式
       loading: false, // 提交按钮加载状态
+      // 邮箱验证码相关
+      isSendEmailCodeDisabled: false,
+      emailCodeButtonText: '发送验证码',
+      emailCodeTimer: null,
+      emailCodeCountdown: 60,
       formData: {
         username: '',
         password: '',
         confirmPassword: '',
+        emailUuid: '',
+        email: '',
+        emailCode: '',
         authType: 1,
         uuid: '',
-        captchaImg: ''
+        captchaImg: '',
+        code: ''
       },
       rules: {
         username: [
@@ -164,17 +238,75 @@ export default {
         ],
         confirmPassword: [
           { validator: validateConfirmPassword, trigger: 'blur' }
-        ]
+        ],
+        email: [{ validator: validateEmail, trigger: 'blur' }],
+        emailCode: [{ validator: validateEmailCode, trigger: 'blur' }],
+        code: [{ validator: validateCode, trigger: 'blur' }]
       }
     }
   },
   mounted() {},
+  beforeDestroy() {
+    // 清除定时器
+    if (this.emailCodeTimer) {
+      clearInterval(this.emailCodeTimer)
+    }
+  },
   methods: {
     loadCaptchaImg() {
       getCaptchaImg().then((res) => {
         this.formData.uuid = res.data.uuid
         this.formData.captchaImg = 'data:image/gif;base64,' + res.data.img
       })
+    },
+
+    // 发送邮箱验证码
+    sendEmailCode() {
+      if (!this.formData.email) {
+        this.$message.warning('请先输入邮箱')
+        return
+      }
+
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(this.formData.email)) {
+        this.$message.warning('请输入正确的邮箱格式')
+        return
+      }
+
+      sendRegisterEmail({
+        email: this.formData.email
+      })
+        .then((res) => {
+          this.formData.emailUuid = res.data.uuid
+          this.$message.success('验证码已发送至您的邮箱，请查收')
+        })
+        .catch((error) => {
+          console.log('操作失败:', error)
+        })
+    },
+
+    // 开始邮箱验证码倒计时
+    startEmailCodeCountdown() {
+      this.isSendEmailCodeDisabled = true
+      this.emailCodeCountdown = 60
+      this.emailCodeButtonText = `${this.emailCodeCountdown}秒后重新发送`
+
+      this.emailCodeTimer = setInterval(() => {
+        this.emailCodeCountdown--
+        this.emailCodeButtonText = `${this.emailCodeCountdown}秒后重新发送`
+
+        if (this.emailCodeCountdown <= 0) {
+          this.resetEmailCodeButton()
+        }
+      }, 1000)
+    },
+
+    // 重置邮箱验证码按钮
+    resetEmailCodeButton() {
+      clearInterval(this.emailCodeTimer)
+      this.isSendEmailCodeDisabled = false
+      this.emailCodeButtonText = '发送验证码'
     },
 
     // 切换登录/注册模式
@@ -205,34 +337,59 @@ export default {
     // 登录处理
     handleLogin() {
       this.loading = true
-      this.$store.dispatch('user/login', this.formData).then(() => {
-        this.$message.success('登录成功')
-        this.loading = false
-        this.closeDrawer()
-      }).catch(() => {
-        this.loading = false
-      })
+      this.$store
+        .dispatch('user/login', this.formData)
+        .then(() => {
+          this.$message.success('登录成功')
+          this.loading = false
+          this.closeDrawer()
+          window.location.reload()
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
 
     // 注册处理
     handleRegister() {
       this.loading = true
-      register(this.formData).then(() => {
-        this.$message.success('注册成功，请登录')
-        this.isLogin = true
-        this.formData = {
-          username: '',
-          password: '',
-          confirmPassword: ''
-        }
-      }).catch(() => {
-        this.loading = false
-      })
+      register(this.formData)
+        .then(() => {
+          this.$message.success('注册成功，请登录')
+          this.isLogin = true
+          this.formData = {
+            username: '',
+            password: '',
+            captchaImg: '',
+            confirmPassword: '',
+            email: '',
+            emailCode: '',
+            authType: 1,
+            code: ''
+          }
+          // 重置邮箱验证码按钮状态
+          this.resetEmailCodeButton()
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
 
     // 关闭抽屉前的处理
     handleClose(done) {
-      this.formData = {}
+      this.isLogin = true
+      this.formData = {
+        username: '',
+        password: '',
+        captchaImg: '',
+        confirmPassword: '',
+        email: '',
+        emailCode: '',
+        authType: 1,
+        code: ''
+      }
+      // 重置邮箱验证码按钮状态
+      this.resetEmailCodeButton()
       done()
     },
 

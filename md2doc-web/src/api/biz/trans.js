@@ -9,6 +9,14 @@ export function getTransPage(data) {
   })
 }
 
+export function getUserTransPage(data) {
+  return request({
+    url: '/biz/trans/getUserTransPage',
+    method: 'get',
+    params: data
+  })
+}
+
 export function updateTrans(data) {
   return request({
     url: '/biz/trans',

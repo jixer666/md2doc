@@ -127,4 +127,13 @@ public class PointsServiceImpl extends BaseServiceImpl<PointsMapper, Points> imp
                 pointsDTO.getRuleType(), PointsFlowStatusEnum.SUCCESS.getStatus());
         pointsFlowService.savePointsFlow(pointsFlowDTO);
     }
+
+    @Override
+    public PointsVO getUserPoints(Long userId) {
+        AssertUtils.isNotEmpty(userId, "用户ID不能为空");
+
+        Points points = selectByUserId(userId);
+
+        return PointsConvert.buildPointsVOByPoints(points);
+    }
 }

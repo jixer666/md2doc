@@ -36,7 +36,22 @@ public class RegisterDTO {
      */
     private Integer authType;
 
-    public void checkParams() {
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 邮箱验证码
+     */
+    private String emailCode;
+
+    /**
+     * 邮箱唯一标识
+     */
+    private String emailUuid;
+
+    public void checkAccountParams() {
         AssertUtils.isNotEmpty(username, "账户不能为空");
         AssertUtils.isNotEmpty(password, "密码不能为空");
         AssertUtils.isNotEmpty(passwordAgain, "确认密码不能为空");
@@ -44,5 +59,12 @@ public class RegisterDTO {
         AssertUtils.isNotEmpty(authType, "注册方式不能为空");
         AssertUtils.isNotEmpty(uuid, "验证码不能为空");
         AssertUtils.isNotEmpty(code, "验证码不能为空");
+    }
+
+    public void checkEmailParams() {
+        AssertUtils.isNotEmpty(authType, "注册方式不能为空");
+        AssertUtils.isNotEmpty(email, "邮箱不能为空");
+        AssertUtils.isNotEmpty(emailCode, "验证码不能为空");
+        AssertUtils.isNotEmpty(emailUuid, "验证码不能为空");
     }
 }

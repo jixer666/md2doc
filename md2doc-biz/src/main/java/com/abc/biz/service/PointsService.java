@@ -1,5 +1,6 @@
 package com.abc.biz.service;
 
+import com.abc.biz.domain.vo.PointsVO;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.PointsDTO;
 import com.abc.biz.domain.entity.Points;
@@ -32,4 +33,6 @@ public interface PointsService extends IService<Points> {
     Points selectByUserId(Long userId);
 
     void initPoints(PointsDTO initPointsDTO);
+
+    PointsVO getUserPoints(Long userId);
 }

@@ -33,9 +33,9 @@ public class TransConvert {
         return messageList;
     }
 
-    public static TransVO buildTransVOByContent(String content) {
+    public static TransVO buildTransVOByTransContent(String transContent) {
         TransVO transVO = new TransVO();
-        transVO.setContent(content);
+        transVO.setTransContent(transContent);
 
         return transVO;
     }

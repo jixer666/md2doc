@@ -1,5 +1,6 @@
 package com.abc.system.strategy.login;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.abc.system.security.context.SecurityAuthContext;
 import com.abc.common.util.AssertUtils;
 import com.abc.system.convert.UserConvert;
@@ -50,12 +51,15 @@ public class AccountAuthStrategy implements AuthStrategy {
     }
 
     public void preRegisterCheck(RegisterDTO registerDTO) {
-        registerDTO.checkParams();
+        registerDTO.checkAccountParams();
         User user = userService.getUserByUsername(registerDTO.getUsername());
         AssertUtils.isEmpty(user, "用户已存在");
 
         Boolean checkCaptcha = indexService.checkCaptchaImg(registerDTO.getUuid(), registerDTO.getCode());
         AssertUtils.isTrue(checkCaptcha, "验证码错误");
+
+        EmailAuthStrategy emailAuthStrategy = SpringUtil.getBean(EmailAuthStrategy.class);
+        emailAuthStrategy.preRegisterCheck(registerDTO);
     }
 
     private void afterRegister(RegisterDTO registerDTO) {

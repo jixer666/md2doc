@@ -5,6 +5,7 @@ import com.abc.common.domain.vo.ApiResult;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.TransDTO;
 import com.abc.biz.service.TransService;
+import com.abc.common.util.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,5 +80,13 @@ public class TransController {
         return transService.exportTransMd(transDTO);
     }
 
+    @ApiOperation("查询用户MD转换分页")
+    @GetMapping("/getUserTransPage")
+    public ApiResult<PageResult> getUserTransPage(TransDTO transDTO) {
+        transDTO.setUserId(SecurityUtils.getUserId());
+        PageResult transPages = transService.getTransPageWithUiParam(transDTO);
+
+        return ApiResult.success(transPages);
+    }
 
 }

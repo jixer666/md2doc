@@ -15,7 +15,7 @@ public class PointsVO {
 
     private Long userId;
 
-    private Integer points;
+    private Integer availablePoints;
 
     private Integer userType;
 

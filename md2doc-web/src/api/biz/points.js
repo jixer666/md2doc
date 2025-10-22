@@ -31,3 +31,10 @@ export function deletePoints(data) {
     data: data
   })
 }
+
+export function getUserPoints() {
+  return request({
+    url: '/biz/points/getUserPoints',
+    method: 'post'
+  })
+}

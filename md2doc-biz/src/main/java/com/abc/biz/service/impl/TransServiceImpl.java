@@ -1,13 +1,16 @@
 package com.abc.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.abc.biz.constant.BizConstants;
 import com.abc.biz.domain.dto.AiCallbackDTO;
 import com.abc.biz.domain.dto.AiMessageDTO;
 import com.abc.biz.domain.enums.PointsRuleTypeEnum;
+import com.abc.biz.factory.TransAsyncTaskFactory;
 import com.abc.biz.service.AiService;
 import com.abc.biz.service.component.PointsServiceHelper;
 import com.abc.biz.util.MarkdownLatexCleaner;
 import com.abc.biz.util.PandocUtil;
+import com.abc.common.core.async.AsyncManager;
 import com.abc.common.core.service.BaseServiceImpl;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.common.util.AssertUtils;
@@ -17,6 +20,7 @@ import com.abc.biz.domain.entity.Trans;
 import com.abc.biz.domain.vo.TransVO;
 import com.abc.biz.mapper.TransMapper;
 import com.abc.biz.service.TransService;
+import com.abc.common.util.FileUtils;
 import com.abc.common.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -88,18 +92,11 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
         String content = MarkdownLatexCleaner.cleanLatex(transDTO.getPreContent());
 
         if (!SecurityUtils.isAnonymousUser()) {
-            saveTransByTransDTOAndContent(transDTO, content);
+            transDTO.setUserId(SecurityUtils.getUserId());
+            AsyncManager.me().execute(TransAsyncTaskFactory.recordTransTask(transDTO, content));
         }
 
-        return TransConvert.buildTransVOByContent(content);
-    }
-
-    private void saveTransByTransDTOAndContent(TransDTO transDTO, String content) {
-        AssertUtils.isNotEmpty(transDTO, "转换参数不能为空");
-        AssertUtils.isNotEmpty(content, "转换后内容不能为空");
-
-        transDTO.setTransContent(content);
-        saveTrans(transDTO);
+        return TransConvert.buildTransVOByTransContent(content);
     }
 
     @Override
@@ -110,8 +107,9 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
         return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
             List<AiMessageDTO> messageList = TransConvert.buildAiMessageDTOByContent(transDTO.getPreContent());
             String result = getAiCallMessageResult(messageList);
-            saveTransByTransDTOAndContent(transDTO, result);
-            return TransConvert.buildTransVOByContent(result);
+            transDTO.setUserId(SecurityUtils.getUserId());
+            AsyncManager.me().execute(TransAsyncTaskFactory.recordTransTask(transDTO, result));
+            return TransConvert.buildTransVOByTransContent(result);
         });
     }
 
@@ -135,7 +133,7 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
 
         return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
             byte[] data = PandocUtil.transMdToWord(transDTO.getPreContent());
-            return  download(data, "export.doc");
+            return download(data, FileUtils.getFilenameByDate(BizConstants.EXPORT_STR, BizConstants.DOCX_EXTENSION));
         });
     }
 }

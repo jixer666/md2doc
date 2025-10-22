@@ -202,7 +202,7 @@ public class CommonConstants {
     /**
      * 匿名用户账号
      */
-    public static final String ANONYMOUS_USER = "anonymous";
+    public static final String ANONYMOUS_USER = "anonymousUser";
 
 
 }

@@ -8,6 +8,14 @@ export function getPointsFlowPage(data) {
   })
 }
 
+export function getUserPointsFlowPage(data) {
+  return request({
+    url: '/biz/pointsFlow/getUserPointsFlowPage',
+    method: 'get',
+    params: data
+  })
+}
+
 export function updatePointsFlow(data) {
   return request({
     url: '/biz/pointsFlow',

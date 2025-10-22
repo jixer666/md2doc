@@ -2,9 +2,11 @@ package com.abc.system.controller;
 
 import com.abc.common.domain.vo.ApiResult;
 import com.abc.system.domain.dto.CaptchaDTO;
+import com.abc.system.domain.dto.EmailDTO;
 import com.abc.system.domain.dto.LoginDTO;
 import com.abc.system.domain.dto.RegisterDTO;
 import com.abc.system.domain.vo.CaptchaVO;
+import com.abc.system.domain.vo.EmailVO;
 import com.abc.system.domain.vo.MenuRouterVO;
 import com.abc.system.service.IndexService;
 import io.swagger.annotations.ApiOperation;
@@ -59,5 +61,13 @@ public class IndexController {
         CaptchaVO captchaVO = indexService.getCaptchaImg(captchaDTO);
 
         return ApiResult.success(captchaVO);
+    }
+
+    @ApiOperation("发送注册邮件")
+    @PostMapping("/sendRegisterEmail")
+    public ApiResult<EmailVO> sendRegisterEmail(@RequestBody EmailDTO emailDTO) {
+        EmailVO emailRegisterVO = indexService.sendRegisterEmail(emailDTO);
+
+        return ApiResult.success(emailRegisterVO);
     }
 }

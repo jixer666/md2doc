@@ -1,5 +1,8 @@
 package com.abc.biz.util;
 
+import com.abc.biz.constant.BizConstants;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -9,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+@Slf4j
 public class PandocUtil {
 
     public static byte[] transMdToWord(String content) {
@@ -24,12 +28,12 @@ public class PandocUtil {
             }
 
             // 生成临时Markdown文件
-            String mdFileName = UUID.randomUUID().toString() + ".md";
+            String mdFileName = UUID.randomUUID().toString() + BizConstants.MD_EXTENSION;
             Path mdFilePath = tempDir.resolve(mdFileName);
             Files.write(mdFilePath, content.getBytes(StandardCharsets.UTF_8));
 
             // 生成临时输出Word文件路径
-            String docxFileName = UUID.randomUUID().toString() + ".docx";
+            String docxFileName = UUID.randomUUID().toString() + BizConstants.DOCX_EXTENSION;
             Path docxFilePath = tempDir.resolve(docxFileName);
 
             // 构建Pandoc命令

@@ -1,9 +1,11 @@
 package com.abc.biz.controller;
 
+import com.abc.biz.domain.vo.PointsVO;
 import com.abc.common.domain.vo.ApiResult;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.PointsDTO;
 import com.abc.biz.service.PointsService;
+import com.abc.common.util.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +57,10 @@ public class PointsController {
         return ApiResult.success();
     }
 
+    @ApiOperation("查询用户积分")
+    @PostMapping("/getUserPoints")
+    public ApiResult<PointsVO> getUserPoints() {
+        return ApiResult.success(pointsService.getUserPoints(SecurityUtils.getUserId()));
+    }
 
 }

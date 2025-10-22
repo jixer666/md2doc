@@ -4,6 +4,7 @@ import com.abc.common.domain.vo.ApiResult;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.PointsFlowDTO;
 import com.abc.biz.service.PointsFlowService;
+import com.abc.common.util.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,15 @@ public class PointsFlowController {
         pointsFlowService.deletePointsFlow(pointsFlowDTO);
 
         return ApiResult.success();
+    }
+
+    @ApiOperation("查询积分流水分页")
+    @GetMapping("/getUserPointsFlowPage")
+    public ApiResult<PageResult> getUserPointsFlowPage(PointsFlowDTO pointsFlowDTO) {
+        pointsFlowDTO.setUserId(SecurityUtils.getUserId());
+        PageResult pointsFlowPages = pointsFlowService.getPointsFlowPageWithUiParam(pointsFlowDTO);
+
+        return ApiResult.success(pointsFlowPages);
     }
 
 }

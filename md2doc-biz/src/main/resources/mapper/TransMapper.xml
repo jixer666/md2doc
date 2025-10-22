@@ -21,6 +21,9 @@
 
     <select id="selectTransList" resultMap="TransResult">
         <include refid="selectTransVo" />
+        <where>
+            <if test="userId != null">user_id = #{userId}</if>
+        </where>
     </select>
 
 

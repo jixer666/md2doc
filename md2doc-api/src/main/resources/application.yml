@@ -6,6 +6,7 @@ system:
     - /system/oss/download/**
     - /system/white/routes
     - /system/captcha
+    - /system/sendRegisterEmail
     - /biz/trans/preview
 
 server:

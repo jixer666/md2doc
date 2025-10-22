@@ -28,4 +28,6 @@ public interface UserService extends IService<User> {
     void resetPassword(UserResetPwdDTO userResetPwdDTO);
 
     void updateUser(UserDTO userDTO);
+
+    User getUserByEmail(String email);
 }

@@ -127,4 +127,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         BeanUtils.copyProperties(userDTO, user);
         userMapper.updateById(user);
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+        AssertUtils.isNotEmpty(email, "邮箱不能为空");
+        return userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, email));
+    }
 }

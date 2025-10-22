@@ -4,7 +4,7 @@
     <el-drawer
       :visible.sync="drawer"
       :with-header="false"
-      size="500px"
+      size="600px"
       direction="rtl"
       custom-class="user-drawer"
       :before-close="handleClose"
@@ -13,12 +13,20 @@
         <!-- 头部标题 -->
         <div class="drawer-header">
           <h2>个人信息</h2>
-          <el-button
-            icon="el-icon-close"
-            circle
-            class="close-btn"
-            @click="closeDrawer"
-          />
+          <div class="header-actions">
+            <el-button
+              size="small"
+              type="danger"
+              class="logout-btn-header"
+              @click="handleLogout"
+            >退出账号</el-button>
+            <el-button
+              icon="el-icon-close"
+              circle
+              class="close-btn"
+              @click="closeDrawer"
+            />
+          </div>
         </div>
 
         <div class="user-container">
@@ -31,8 +39,15 @@
               <div class="u-nickname">{{ $store.getters.name }}</div>
               <div class="points-info">
                 <span class="points-label">积分：</span>
-                <span class="points-value">111</span>
-                <el-button size="mini" type="primary" class="recharge-btn" @click="showRechargeDialog">充值</el-button>
+                <span class="points-value">{{
+                  pointsInfo.availablePoints
+                }}</span>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  class="recharge-btn"
+                  @click="showRechargeDialog"
+                >充值</el-button>
               </div>
             </div>
           </div>
@@ -42,17 +57,12 @@
             <el-tabs v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="转换记录" name="first">
                 <div class="tab-content">
-                  <el-empty description="暂无转换记录" />
+                  <TransRecord ref="transRecord" />
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="导出记录" name="second">
+              <el-tab-pane label="积分流水" name="second">
                 <div class="tab-content">
-                  <el-empty description="暂无导出记录" />
-                </div>
-              </el-tab-pane>
-              <el-tab-pane label="积分流水" name="third">
-                <div class="tab-content">
-                  <el-empty description="暂无积分流水" />
+                  <PointsFlowRecord ref="pointsFlowRecord" />
                 </div>
               </el-tab-pane>
             </el-tabs>
@@ -67,59 +77,40 @@
     </el-drawer>
 
     <!-- 充值价格表对话框 -->
-    <el-dialog title="积分充值" :visible.sync="dialogVisible" width="600px" :before-close="handleRechargeClose">
-      <div class="recharge-container">
-        <div class="price-options">
-          <div
-            v-for="plan in rechargePlans"
-            :key="plan.id"
-            class="price-card"
-            :class="{ 'active': selectedPlan === plan.id }"
-            @click="selectPlan(plan.id)"
-          >
-            <div class="price-amount">{{ plan.points }}积分</div>
-            <div class="price-value">￥{{ plan.price }}</div>
-            <div v-if="plan.discount" class="price-discount">{{ plan.discount }}</div>
-          </div>
-        </div>
-
-        <div class="payment-methods">
-          <div class="method-title">支付方式</div>
-          <div class="methods">
-            <el-radio-group v-model="paymentMethod">
-              <el-radio label="alipay">支付宝</el-radio>
-              <el-radio label="wechat">微信支付</el-radio>
-              <el-radio label="bank">银行卡</el-radio>
-            </el-radio-group>
-          </div>
-        </div>
-      </div>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="confirmRecharge">确认充值</el-button>
-      </span>
-    </el-dialog>
+    <RechargeDialog
+      :dialog-visible.sync="dialogVisible"
+      :recharge-plans="rechargePlans"
+      @confirm-recharge="handleRechargeConfirm"
+    />
   </div>
 </template>
 
 <script>
+import TransRecord from './tans-record'
+import PointsFlowRecord from './points-flow-record'
+import RechargeDialog from './recharge/index.vue'
+import { getUserPoints } from '@/api/biz/points'
+
 export default {
   name: 'LoginDrawer',
+  components: {
+    TransRecord,
+    PointsFlowRecord,
+    RechargeDialog
+  },
   data() {
     return {
       drawer: false, // 控制抽屉显示
       loading: false, // 提交按钮加载状态
       activeName: 'first', // 默认激活的标签页
       dialogVisible: false, // 充值对话框显示控制
-      selectedPlan: null, // 选中的充值套餐
-      paymentMethod: 'alipay', // 默认支付方式
       rechargePlans: [
         { id: 1, points: 100, price: 10, discount: '' },
         { id: 2, points: 500, price: 45, discount: '节省5元' },
         { id: 3, points: 1000, price: 80, discount: '节省20元' },
         { id: 4, points: 3000, price: 210, discount: '节省90元' }
-      ]
+      ],
+      pointsInfo: 0 // 用户积分
     }
   },
   mounted() {},
@@ -137,11 +128,33 @@ export default {
     // 从父组件打开抽屉的方法
     openDrawer() {
       this.drawer = true
+      // 调用接口获取用户积分
+      this.fetchUserPoints()
+      // 打开抽屉时，默认加载第一个标签页的数据
+      this.$nextTick(() => {
+        if (this.activeName === 'first' && this.$refs.transRecord) {
+          this.$refs.transRecord.getList()
+        }
+      })
+    },
+
+    // 获取用户积分
+    fetchUserPoints() {
+      getUserPoints().then(response => {
+        this.pointsInfo = response.data
+      }).catch(error => {
+        console.error('获取用户积分失败:', error)
+        this.$message.error('获取积分信息失败')
+      })
     },
 
     // 标签页点击事件
     handleClick(tab, event) {
-      console.log(tab, event)
+      if (tab.name === 'first' && this.$refs.transRecord) {
+        this.$refs.transRecord.getList()
+      } else if (tab.name === 'second' && this.$refs.pointsFlowRecord) {
+        this.$refs.pointsFlowRecord.getList()
+      }
     },
 
     // 显示充值对话框
@@ -149,29 +162,20 @@ export default {
       this.dialogVisible = true
     },
 
-    // 关闭充值对话框
-    handleRechargeClose(done) {
-      this.selectedPlan = null
-      done()
-    },
-
-    // 选择充值套餐
-    selectPlan(planId) {
-      this.selectedPlan = planId
-    },
-
-    // 确认充值
-    confirmRecharge() {
-      if (!this.selectedPlan) {
-        this.$message.warning('请选择充值套餐')
-        return
+    // 退出登录
+    async handleLogout() {
+      try {
+        await this.$store.dispatch('user/logout')
+        this.$message.success('退出登录成功')
+        this.drawer = false
+        window.location.reload()
+      } catch (error) {
+        this.$message.error('退出登录失败')
       }
+    },
 
-      const selectedPlan = this.rechargePlans.find(plan => plan.id === this.selectedPlan)
-      this.$message.success(`已选择${selectedPlan.points}积分套餐，金额：${selectedPlan.price}元`)
-      // 这里可以调用实际的充值接口
-      this.dialogVisible = false
-      this.selectedPlan = null
+    handleRechargeConfirm() {
+
     }
   }
 }
@@ -198,6 +202,12 @@ export default {
   font-weight: 600;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .close-btn {
   padding: 8px;
   border: none;
@@ -209,6 +219,11 @@ export default {
 .close-btn:hover {
   color: #409eff;
   background: #f5f5f5;
+}
+
+.logout-btn-header {
+  padding: 6px 12px;
+  font-size: 14px;
 }
 
 .user-container {
@@ -272,7 +287,6 @@ export default {
 }
 
 .tab-content {
-  padding: 15px 0;
   min-height: 200px;
 }
 
@@ -303,74 +317,4 @@ export default {
   height: 100%;
 }
 
-/* 充值对话框样式 */
-.recharge-container {
-  padding: 20px 0;
-}
-
-.price-options {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.price-card {
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  padding: 15px 10px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.price-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
-}
-
-.price-card.active {
-  border-color: #409eff;
-  background-color: #ecf5ff;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
-}
-
-.price-amount {
-  font-size: 16px;
-  font-weight: 600;
-  color: #212529;
-  margin-bottom: 5px;
-}
-
-.price-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: #409eff;
-  margin-bottom: 5px;
-}
-
-.price-discount {
-  font-size: 12px;
-  color: #67c23a;
-}
-
-.payment-methods {
-  border-top: 1px solid #e9ecef;
-  padding-top: 20px;
-}
-
-.method-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #212529;
-}
-
-.methods {
-  padding-left: 20px;
-}
-
-.dialog-footer {
-  text-align: right;
-}
 </style>

@@ -24,4 +24,7 @@ public class User extends BaseEntity {
     private String nickname;
 
     private String avatar;
+
+    private String email;
+
 }

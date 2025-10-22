@@ -8,8 +8,10 @@ import com.abc.biz.domain.entity.Points;
 import com.abc.biz.domain.enums.PointsFlowStatusEnum;
 import com.abc.biz.domain.enums.PointsRuleTypeEnum;
 import com.abc.biz.domain.enums.PointsUserTypeEnum;
+import com.abc.biz.factory.PointsAsyncTaskFactory;
 import com.abc.biz.service.PointsFlowService;
 import com.abc.biz.service.PointsService;
+import com.abc.common.core.async.AsyncManager;
 import com.abc.common.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +37,7 @@ public class PointsServiceHelper {
     @Transactional(rollbackFor = Exception.class)
     public <T> T executeWithPoints(Long userId, PointsRuleTypeEnum pointsRule, PointsBusinessCallback<T> callback) {
         Integer points = pointsRule.getPoints();
-        Integer bizType = pointsRule.getType();
+        Integer ruleType = pointsRule.getType();
 
         Points userPoints = pointsService.selectByUserId(userId);
 
@@ -56,7 +58,6 @@ public class PointsServiceHelper {
         pointsService.forzenPoints(userId, points);
         
         try {
-
             // 2. 执行业务逻辑
             T result = callback.execute();
             
@@ -64,8 +65,8 @@ public class PointsServiceHelper {
             pointsService.reducePoints(userId, points);
             
             // 4. 记录成功流水
-            recordPointsFlow(userId, points, bizType, PointsFlowStatusEnum.SUCCESS.getStatus());
-            
+            AsyncManager.me().execute(PointsAsyncTaskFactory.recordPointsFlowTask(userId, points, ruleType, PointsFlowStatusEnum.SUCCESS.getStatus()));
+
             return result;
             
         } catch (Exception e) {
@@ -74,17 +75,11 @@ public class PointsServiceHelper {
             pointsService.unfreezePoints(userId, points);
             
             // 6. 记录失败流水
-            recordPointsFlow(userId, points, bizType, PointsFlowStatusEnum.FAIL.getStatus());
-            
+            AsyncManager.me().execute(PointsAsyncTaskFactory.recordPointsFlowTask(userId, points, ruleType, PointsFlowStatusEnum.FAIL.getStatus()));
+
             log.error("积分业务执行失败 - 用户: {}, 积分: {}, 原因: {}", userId, points, e.getMessage(), e);
             throw new GlobalException("业务处理失败: " + e.getMessage());
         }
-    }
-    
-    private void recordPointsFlow(Long userId, Integer points, Integer bizType, Integer status) {
-        Points userPoints = pointsService.selectByUserId(userId);
-        PointsFlowDTO pointsFlowDTO = PointsFlowConvert.buildPointsFlowDTO(points, userPoints.getAvailablePoints(), bizType, status);
-        pointsFlowService.savePointsFlow(pointsFlowDTO);
     }
     
     @FunctionalInterface

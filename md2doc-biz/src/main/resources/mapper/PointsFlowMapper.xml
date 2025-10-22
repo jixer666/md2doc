@@ -22,6 +22,9 @@
 
     <select id="selectPointsFlowList" resultMap="PointsFlowResult">
         <include refid="selectPointsFlowVo" />
+        <where>
+            <if test="userId != null">user_id = #{userId}</if>
+        </where>
     </select>
 
 

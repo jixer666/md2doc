@@ -1,10 +1,10 @@
 <template>
-  <div class="container">
+  <div v-loading="loading" class="container">
     <el-header class="header">
       <div class="navbar">
         <div class="logo">MD2DOC</div>
         <div class="nav-slogan">
-          <span class="slogan-text">AI智能解析 · 多平台无缝对接 · 一键格式转换Word文档 · </span>
+          <span class="slogan-text">AI智能解析 · 多平台无缝对接 · 一键格式转换Word文档</span>
         </div>
         <div class="nav-actions">
           <el-tooltip class="item" effect="dark" placement="bottom">
@@ -14,8 +14,8 @@
             </div>
             <el-button size="small" icon="el-icon-question" @click="previewMdContent">免费格式转换</el-button>
           </el-tooltip>
-          <el-button v-if="isLogin" type="danger" size="small" @click="previewMdContent">AI专业转换</el-button>
-          <el-button type="primary" size="small" :loading="exportLoading" @click="exportMdContent">导出文档</el-button>
+          <el-button v-if="isLogin" type="danger" size="small" @click="previewAiMdContent">AI专业转换</el-button>
+          <el-button type="primary" size="small" @click="exportMdContent">导出文档</el-button>
 
           <el-avatar v-if="isLogin" :src="$store.getters.avatar" :size="35" class="u-avatar" @click.native="openUserDrawer" />
         </div>
@@ -67,14 +67,14 @@ export default {
   data() {
     return {
       text: '', // 原始内容
-      previewContent: '阿斯顿撒', // 预览内容
+      previewContent: '', // 预览内容
       // 自定义左侧工具栏
       leftToolbar:
         'undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code',
       // 自定义右侧工具栏
       rightToolbar: 'fullscreen',
       isLogin: false,
-      exportLoading: false
+      loading: false
     }
   },
   mounted() {
@@ -85,11 +85,19 @@ export default {
       if (!this.text) {
         return
       }
+      this.loading = true
       previewTransMd({
         preContent: this.text
       }).then((res) => {
         this.previewContent = res.data.content
+        this.loading = false
+      }).catch(error => {
+        console.error('操作失败:', error)
+        this.loading = false
       })
+    },
+    previewAiMdContent() {
+      this.$message.warning('待开发')
     },
     handleEditorChange() {
       this.previewContent = this.text
@@ -108,15 +116,15 @@ export default {
         this.openLoginDrawer()
         return
       }
-      this.exportLoading = true
+      this.loading = true
       exportTransMd({
         preContent: this.previewContent
       }).then(res => {
         this.$modal.msgSuccess('导出成功')
-        this.exportLoading = false
+        this.loading = false
       }).catch(error => {
         console.error('操作失败:', error)
-        this.exportLoading = false
+        this.loading = false
       })
     }
   }
