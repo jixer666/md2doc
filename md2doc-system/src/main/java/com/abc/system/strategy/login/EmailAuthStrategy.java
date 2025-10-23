@@ -25,10 +25,11 @@ public class EmailAuthStrategy implements AuthStrategy {
     }
 
     @Override
-    public void doRegister(RegisterDTO registerDTO) {
+    public User doRegister(RegisterDTO registerDTO) {
         preRegisterCheck(registerDTO);
 
         // todo 邮箱注册
+        return null;
     }
 
     public void preRegisterCheck(RegisterDTO registerDTO) {

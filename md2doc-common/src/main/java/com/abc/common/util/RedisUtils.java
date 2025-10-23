@@ -271,7 +271,7 @@ public class RedisUtils {
     }
 
     public static String objToStr(Object o) {
-        return JsonUtils.toStr(o);
+        return JSONUtil.toJsonStr(o);
     }
 
     public static <T> void mset(Map<String, T> map, long time) {

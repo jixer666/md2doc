@@ -21,7 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleServiceImpl extends BaseServiceImpl<RoleMapper, Role> implements RoleService {
@@ -148,5 +151,20 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleMapper, Role> implement
         AssertUtils.isNotEmpty(userId, "用户ID不能为空");
         return getRoleKeysByUserId(userId).stream()
                 .anyMatch(CommonConstants.SUPER_ADMIN::equals);
+    }
+
+    @Override
+    public void saveUserRoleByRoleKeys(Long userId, List<String> roleKeys) {
+        if (CollUtil.isNotEmpty(roleKeys)) {
+            return;
+        }
+
+        List<Long> roleIds = getRoleListByRoleKeys(roleKeys).stream().map(Role::getRoleId).collect(Collectors.toList());
+        saveUserRole(userId, roleIds);
+    }
+
+    @Override
+    public List<Role> getRoleListByRoleKeys(List<String> roleKeys) {
+        return CollUtil.isEmpty(roleKeys) ? new ArrayList<>() : roleMapper.selectRoleListByRoleKeys(roleKeys);
     }
 }

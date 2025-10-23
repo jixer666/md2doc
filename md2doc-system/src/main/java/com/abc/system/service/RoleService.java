@@ -33,4 +33,8 @@ public interface RoleService extends IService<Role> {
     void saveUserRole(Long userId, List<Long> roleIds);
 
     Boolean isAdmin(Long userId);
+
+    void saveUserRoleByRoleKeys(Long userId, List<String> roleKeys);
+
+    List<Role> getRoleListByRoleKeys(List<String> roleKeys);
 }

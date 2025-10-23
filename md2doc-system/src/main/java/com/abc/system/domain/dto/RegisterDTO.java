@@ -19,7 +19,7 @@ public class RegisterDTO {
     /**
      * 用户密码
      */
-    private String passwordAgain;
+    private String confirmPassword;
 
     /**
      * 验证码
@@ -54,8 +54,8 @@ public class RegisterDTO {
     public void checkAccountParams() {
         AssertUtils.isNotEmpty(username, "账户不能为空");
         AssertUtils.isNotEmpty(password, "密码不能为空");
-        AssertUtils.isNotEmpty(passwordAgain, "确认密码不能为空");
-        AssertUtils.isTrue(password.equalsIgnoreCase(passwordAgain), "两次输入密码不一致");
+        AssertUtils.isNotEmpty(confirmPassword, "确认密码不能为空");
+        AssertUtils.isTrue(password.equalsIgnoreCase(confirmPassword), "两次输入密码不一致");
         AssertUtils.isNotEmpty(authType, "注册方式不能为空");
         AssertUtils.isNotEmpty(uuid, "验证码不能为空");
         AssertUtils.isNotEmpty(code, "验证码不能为空");

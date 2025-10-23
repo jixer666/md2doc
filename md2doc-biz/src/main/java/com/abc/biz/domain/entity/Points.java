@@ -23,7 +23,7 @@ import java.util.Date;
 @TableName("tb_points")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Points extends BaseEntity {
+public class Points {
 
     @TableId
     @ApiModelProperty("用户ID")
@@ -49,6 +49,9 @@ public class Points extends BaseEntity {
 
     @ApiModelProperty("会员结束时间")
     private Date endTime;
+
+    @ApiModelProperty("版本号")
+    private Integer ver;
 
 
     public boolean isVipUser() {

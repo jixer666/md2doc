@@ -8,6 +8,7 @@ import com.abc.system.domain.dto.LoginDTO;
 import com.abc.common.domain.dto.LoginUserDTO;
 import com.abc.system.domain.dto.RegisterDTO;
 import com.abc.common.domain.entity.User;
+import com.abc.system.service.EmailService;
 import com.abc.system.service.IndexService;
 import com.abc.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class AccountAuthStrategy implements AuthStrategy {
     @Autowired
     private IndexService indexService;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public LoginUserDTO authenticate(LoginDTO loginDTO) {
         preLoginCheck(loginDTO);
@@ -43,11 +47,13 @@ public class AccountAuthStrategy implements AuthStrategy {
     }
 
     @Override
-    public void doRegister(RegisterDTO registerDTO) {
+    public User doRegister(RegisterDTO registerDTO) {
         preRegisterCheck(registerDTO);
         User user = UserConvert.convertToUserByRegisterDTO(registerDTO);
         userService.saveUser(user);
         afterRegister(registerDTO);
+
+        return user;
     }
 
     public void preRegisterCheck(RegisterDTO registerDTO) {
@@ -64,7 +70,7 @@ public class AccountAuthStrategy implements AuthStrategy {
 
     private void afterRegister(RegisterDTO registerDTO) {
         indexService.invalidCaptcha(registerDTO.getUuid());
-
+        emailService.invalidEmailCode(registerDTO.getEmailUuid());
 
     }
 }

@@ -20,6 +20,7 @@ public class UserConvert {
                 .password(new BCryptPasswordEncoder().encode(registerDTO.getPassword()))
                 .nickname(CommonConstants.DEFAULT_NICKNAME)
                 .avatar(CommonConstants.DEFAULT_AVATAR)
+                .email(registerDTO.getEmail())
                 .build();
         user.setUserId(IdUtils.getId());
         user.setCommonParams();

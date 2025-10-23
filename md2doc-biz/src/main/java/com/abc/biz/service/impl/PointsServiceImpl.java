@@ -106,7 +106,7 @@ public class PointsServiceImpl extends BaseServiceImpl<PointsMapper, Points> imp
         AssertUtils.isNotEmpty(points, "积分不能为空");
 
         int rows = pointsMapper.increasePointsByUserId(userId, points);
-        AssertUtils.isTrue(rows != 0, "积分扣减失败：冻结积分不足");
+        AssertUtils.isTrue(rows != 0, "积分增加失败");
     }
 
     @Override

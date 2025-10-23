@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.abc.biz.domain.dto.PointsDTO;
 import com.abc.biz.domain.entity.Points;
 import com.abc.biz.domain.vo.PointsVO;
+import com.abc.common.constant.CommonConstants;
 
 /**
  * 积分转换器
@@ -14,7 +15,11 @@ import com.abc.biz.domain.vo.PointsVO;
 public class PointsConvert {
     public static Points buildDefaultPointsByPointsDTO(PointsDTO pointsDTO) {
         Points points = BeanUtil.copyProperties(pointsDTO, Points.class);
-        points.setCommonParams();
+        points.setTotalPoints(0);
+        points.setAvailablePoints(0);
+        points.setFrozenPoints(0);
+        points.setUsedPoints(0);
+        points.setVer(CommonConstants.DEFAULT_VER);
 
         return points;
     }

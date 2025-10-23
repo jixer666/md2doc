@@ -2,8 +2,17 @@ package com.abc.system.service.impl;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
+import com.abc.biz.convert.PointsConvert;
+import com.abc.biz.domain.dto.PointsDTO;
+import com.abc.biz.domain.enums.PointsRuleTypeEnum;
+import com.abc.biz.domain.enums.PointsUserTypeEnum;
+import com.abc.biz.service.PointsService;
 import com.abc.common.constant.CacheConstants;
 import com.abc.common.constant.MenuConstants;
+import com.abc.common.core.threadlocal.ThreadLocalTempHelp;
+import com.abc.common.core.threadlocal.ThreadLocalTempVar;
+import com.abc.common.domain.entity.User;
+import com.abc.common.domain.enums.CommonRoleEnum;
 import com.abc.common.exception.GlobalException;
 import com.abc.common.util.AssertUtils;
 import com.abc.common.util.RedisUtils;
@@ -22,24 +31,20 @@ import com.abc.system.domain.vo.CaptchaVO;
 import com.abc.system.domain.vo.EmailVO;
 import com.abc.system.domain.vo.MenuRouterVO;
 import com.abc.system.factory.LoginStrategyFactory;
-import com.abc.system.service.EmailService;
-import com.abc.system.service.IndexService;
-import com.abc.system.service.MenuService;
-import com.abc.system.service.TokenService;
+import com.abc.system.service.*;
 import com.abc.system.strategy.login.AuthStrategy;
 import com.google.code.kaptcha.Producer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FastByteArrayOutputStream;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -62,6 +67,12 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private PointsService pointsService;
+
     @Override
     public String login(LoginDTO loginDTO) {
         AuthStrategy authStrategy = LoginStrategyFactory.getAuthStrategy(loginDTO.getAuthType());
@@ -70,9 +81,23 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
+    @Transactional
     public void register(RegisterDTO registerDTO) {
         AuthStrategy authStrategy = LoginStrategyFactory.getAuthStrategy(registerDTO.getAuthType());
-        authStrategy.doRegister(registerDTO);
+        User user = authStrategy.doRegister(registerDTO);
+
+        roleService.saveUserRoleByRoleKeys(user.getUserId(), Collections.singletonList(CommonRoleEnum.COMMON_USER.getRoleKey()));
+
+        initUserPoints(user);
+    }
+
+    private void initUserPoints(User user) {
+        // 设置临时变量，用于后续操作中通过SecurityUtils.getUserId()获取到用户信息
+        ThreadLocalTempHelp.execute(ThreadLocalTempVar.TEMP_USER_ID_VAR, user.getUserId(), () -> {
+            PointsDTO initPointsDTO = PointsConvert.buildPointsDTOByInitPoints(user.getUserId(), PointsUserTypeEnum.COMMON_USER.getType(),
+                    PointsRuleTypeEnum.NEWCOMER.getPoints(), PointsRuleTypeEnum.NEWCOMER.getType());
+            pointsService.initPoints(initPointsDTO);
+        });
     }
 
     @Override
@@ -177,7 +202,11 @@ public class IndexServiceImpl implements IndexService {
         AssertUtils.isNotEmpty(emailUuid, "邮箱验证码uuid不能为空");
         AssertUtils.isNotEmpty(emailCode, "邮箱验证码不能为空");
 
-        return null;
+        String emailCacheKey = CacheConstants.getFinalKey(CacheConstants.EMAIL_UUID, emailUuid);
+        String trueCode = RedisUtils.get(emailCacheKey);
+        AssertUtils.isNotEmpty(trueCode, "邮箱验证码已失效");
+
+        return trueCode.equalsIgnoreCase(emailCode);
     }
 
     @Override

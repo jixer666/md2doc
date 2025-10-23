@@ -3,12 +3,15 @@ package com.abc.common.util;
 import cn.hutool.setting.dialect.Props;
 import cn.hutool.setting.dialect.PropsUtil;
 import com.abc.common.constant.CommonConstants;
+import com.abc.common.core.threadlocal.ThreadLocalTempVar;
 import com.abc.common.domain.dto.LoginUserDTO;
 import com.abc.common.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Objects;
 
 @Slf4j
 public class SecurityUtils {
@@ -31,6 +34,10 @@ public class SecurityUtils {
         try {
             return getLoginUser().getUserId();
         } catch (Exception e) {
+            Object temVar = ThreadLocalTempVar.getTempUserId();
+            if (Objects.nonNull(temVar)) {
+                return (Long) temVar;
+            }
             log.error("获取用户ID异常：{}", e.getMessage(), e);
             throw new GlobalException("获取用户ID异常");
         }

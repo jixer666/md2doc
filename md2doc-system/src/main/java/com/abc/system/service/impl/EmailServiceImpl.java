@@ -1,6 +1,9 @@
 package com.abc.system.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import com.abc.common.constant.CacheConstants;
+import com.abc.common.util.AssertUtils;
+import com.abc.common.util.RedisUtils;
 import com.abc.system.constant.EmailConstants;
 import com.abc.system.domain.dto.EmailDTO;
 import com.abc.system.domain.vo.EmailVO;
@@ -27,5 +30,10 @@ public class EmailServiceImpl implements EmailService {
         emailDTO.setTo(emailDTO.getEmail());
     }
 
+    @Override
+    public void invalidEmailCode(String emailUuid) {
+        AssertUtils.isNotEmpty(emailUuid, "邮箱验证码不能为空");
 
+        RedisUtils.del(CacheConstants.getFinalKey(CacheConstants.EMAIL_UUID, emailUuid));
+    }
 }

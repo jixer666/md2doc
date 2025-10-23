@@ -25,4 +25,6 @@ public interface RoleMapper extends BaseMapper<Role> {
     void deleteRoleByUserId(Long userId);
 
     void saveUserRole(@Param("userId") Long userId, @Param("list") List<Long> roleIds);
+
+    List<Role> selectRoleListByRoleKeys(@Param("list") List<String> roleKeys);
 }

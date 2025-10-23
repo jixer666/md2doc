@@ -39,7 +39,7 @@
     </update>
 
     <update id="increasePointsByUserId">
-        update tb_points set available_points = available_points + #{points}, total_points = total_points - #{points}
+        update tb_points set available_points = available_points + #{points}, total_points = total_points + #{points}
         where user_id = #{userId}
     </update>
 

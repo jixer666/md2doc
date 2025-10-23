@@ -278,7 +278,7 @@ export default {
         email: this.formData.email
       })
         .then((res) => {
-          this.formData.emailUuid = res.data.uuid
+          this.formData.emailUuid = res.data.emailUuid
           this.$message.success('验证码已发送至您的邮箱，请查收')
         })
         .catch((error) => {

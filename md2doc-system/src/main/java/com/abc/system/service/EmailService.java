@@ -7,4 +7,5 @@ public interface EmailService {
 
     EmailVO sendEmail(EmailDTO emailDTO);
 
+    void invalidEmailCode(String emailUuid);
 }
