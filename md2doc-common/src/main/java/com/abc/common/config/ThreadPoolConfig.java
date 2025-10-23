@@ -1,4 +1,4 @@
-package com.abc.common.constant;
+package com.abc.common.config;
 
 import com.abc.common.util.ThreadUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;

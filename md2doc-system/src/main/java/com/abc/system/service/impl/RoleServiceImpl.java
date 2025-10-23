@@ -155,7 +155,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleMapper, Role> implement
 
     @Override
     public void saveUserRoleByRoleKeys(Long userId, List<String> roleKeys) {
-        if (CollUtil.isNotEmpty(roleKeys)) {
+        if (CollUtil.isEmpty(roleKeys)) {
             return;
         }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="points-container">
     <el-table v-loading="loading" :data="tableList" style="width: 100%">
-      <el-table-column label="ID" prop="id" align="center" width="80" />
+      <el-table-column label="流水号" prop="flowId" align="center" width="170" />
       <el-table-column
         label="变动前积分"
         prop="beforePoints"
@@ -53,12 +53,6 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        label="备注"
-        prop="remark"
-        align="center"
-        :show-overflow-tooltip="true"
-      />
       <el-table-column
         label="创建时间"
         prop="createTime"
