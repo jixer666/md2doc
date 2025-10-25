@@ -7,6 +7,8 @@ import com.abc.common.util.SecurityUtils;
 import com.abc.biz.domain.dto.PointsFlowDTO;
 import com.abc.biz.domain.entity.PointsFlow;
 
+import java.util.Objects;
+
 /**
  * 积分流水转换器
  *
@@ -17,7 +19,9 @@ public class PointsFlowConvert {
     public static PointsFlow buildDefaultPointsFlowByPointsFlowDTO(PointsFlowDTO pointsFlowDTO) {
         PointsFlow pointsFlow = BeanUtil.copyProperties(pointsFlowDTO, PointsFlow.class);
         pointsFlow.setFlowId(IdUtils.getId());
-        pointsFlow.setUserId(SecurityUtils.getUserId());
+        if (Objects.isNull(pointsFlow.getUserId())) {
+            pointsFlow.setUserId(SecurityUtils.getUserId());
+        }
         pointsFlow.setCommonParams();
 
         return pointsFlow;

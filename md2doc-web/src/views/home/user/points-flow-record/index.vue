@@ -13,9 +13,9 @@
         align="center"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.changePoints > 0">
+          <span v-if="scope.row.ruleType === 4">
             + {{ scope.row.changePoints }}</span>
-          <span v-else>{{ scope.row.changePoints }}</span>
+          <span v-else> - {{ scope.row.changePoints }}</span>
         </template></el-table-column>
       <el-table-column
         label="总积分"

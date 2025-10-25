@@ -24,6 +24,7 @@ public class PointsAsyncTaskFactory {
             public void run() {
                 Points userPoints = SpringUtil.getBean(PointsService.class).selectByUserId(userId);
                 PointsFlowDTO pointsFlowDTO = PointsFlowConvert.buildPointsFlowDTO(points, userPoints.getAvailablePoints(), ruleType, status);
+                pointsFlowDTO.setUserId(userId);
                 SpringUtil.getBean(PointsFlowService.class).savePointsFlow(pointsFlowDTO);
             }
         };
