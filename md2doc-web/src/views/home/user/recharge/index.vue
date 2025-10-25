@@ -6,11 +6,8 @@
     :before-close="handleRechargeClose"
     @close="handleRechargeClose"
   >
-    <div
-      v-loading="true"
-      class="recharge-container"
-      element-loading-text="目前支付功能暂未开放，请联系客服QQ:2770063826进行充值"
-    >
+    <div class="recharge-container">
+      <!-- 原有的充值选项暂时隐藏 -->
       <div class="price-options">
         <div
           v-for="plan in rechargePlans"
@@ -27,7 +24,30 @@
         </div>
       </div>
 
-      <div class="payment-methods">
+      <div class="maintenance-notice">
+        <div class="notice-content">
+          <h3>支付功能维护中</h3>
+          <p class="contact-info">
+            请联系客服进行充值
+            <span class="highlight">QQ: 2770063826</span>
+          </p>
+          <div class="contact-actions">
+            <el-button
+              type="primary"
+              size="mini"
+              @click="copyQQ"
+            >复制QQ号</el-button>
+            <el-button
+              type="success"
+              size="mini"
+              @click="openChat"
+            >在线联系</el-button>
+          </div>
+          <p class="notice-footer">我们正在努力完善在线支付功能，敬请期待！</p>
+        </div>
+      </div>
+
+      <!-- <div class="payment-methods">
         <div class="method-title">支付方式</div>
         <div class="methods">
           <el-radio-group v-model="paymentMethod">
@@ -36,12 +56,11 @@
             <el-radio label="bank">银行卡</el-radio>
           </el-radio-group>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">取 消</el-button>
-      <!-- <el-button type="primary" @click="confirmRecharge">确认充值</el-button> -->
     </span>
   </el-dialog>
 </template>
@@ -98,6 +117,25 @@ export default {
       // 重置选择
       this.selectedPlan = null
       this.$emit('update:dialogVisible', false)
+    },
+
+    // 复制QQ号
+    copyQQ() {
+      navigator.clipboard
+        .writeText('2770063826')
+        .then(() => {
+          this.$message.success('QQ号已复制到剪贴板')
+        })
+        .catch(() => {
+          this.$message.error('复制失败，请手动复制')
+        })
+    },
+
+    // 打开在线聊天
+    openChat() {
+      window.open(
+        'https://wpa.qq.com/msgrd?v=3&uin=2770063826&site=qq&menu=yes'
+      )
     }
   }
 }
@@ -173,5 +211,43 @@ export default {
 
 .dialog-footer {
   text-align: right;
+}
+
+.notice-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.notice-icon {
+  font-size: 24px;
+  color: #e6a23c;
+  margin-right: 10px;
+}
+
+.notice-content {
+  flex: 1;
+}
+
+.notice-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.notice-message {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 5px;
+}
+
+.qq-number {
+  font-weight: 700;
+  color: #409eff;
+}
+
+.notice-tip {
+  font-size: 12px;
+  color: #909399;
 }
 </style>

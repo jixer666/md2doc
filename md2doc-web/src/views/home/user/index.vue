@@ -105,10 +105,10 @@ export default {
       activeName: 'first', // 默认激活的标签页
       dialogVisible: false, // 充值对话框显示控制
       rechargePlans: [
-        { id: 1, points: 100, price: 10, discount: '' },
-        { id: 2, points: 500, price: 45, discount: '节省5元' },
-        { id: 3, points: 1000, price: 80, discount: '节省20元' },
-        { id: 4, points: 3000, price: 210, discount: '节省90元' }
+        { id: 1, points: 10, price: 1, discount: '' },
+        { id: 2, points: 80, price: 5, discount: '节省5元' },
+        { id: 3, points: 200, price: 10, discount: '节省20元' },
+        { id: 4, points: 500, price: 20, discount: '节省20元' }
       ],
       pointsInfo: 0 // 用户积分
     }
