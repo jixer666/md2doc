@@ -16,7 +16,7 @@
     </resultMap>
 
     <sql id="selectTransVo">
-        select trans_id, user_id, pre_content, trans_content, create_time from tb_trans
+        select trans_id, user_id, pre_content, trans_content, create_time, update_time, status from tb_trans
     </sql>
 
     <select id="selectTransList" resultMap="TransResult">

@@ -24,7 +24,7 @@
         <include refid="selectUserVo" />
         <where>
             <if test="nickname != null and nickname != ''">and nickname like concat('%', #{nickname}, '%')</if>
-            <if test="username != null and username != ''">and username = #{nickname}</if>
+            <if test="username != null and username != ''">and username = #{username}</if>
             <if test="email != null and email != ''">and email = #{email}</if>
         </where>
     </select>

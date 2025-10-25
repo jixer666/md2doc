@@ -26,12 +26,20 @@ public class PointsDTO {
 
     private Date endTime;
 
-
     // 用于批量删除
-    private List<Long> pointsIds;
+    private List<Long> userIds;
 
     // 用于初始化积分
     private Integer ruleType;
+
+    // 用于管理员修改
+    private Integer availablePoints;
+
+    private Integer totalPoints;
+
+    private Integer frozenPoints;
+
+    private Integer usedPoints;
 
 
     public void checkUpdateParams() {
@@ -45,7 +53,7 @@ public class PointsDTO {
 
     public void checkDeleteParams() {
         AssertUtils.isNotEmpty(this, "积分参数不能为空");
-        AssertUtils.isTrue(CollUtil.isNotEmpty(pointsIds), "积分ID列表不能为空");
+        AssertUtils.isTrue(CollUtil.isNotEmpty(userIds), "积分ID列表不能为空");
     }
 
     public void checkInitParams() {

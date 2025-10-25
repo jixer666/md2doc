@@ -6,10 +6,10 @@
 
     <resultMap type="Points" id="PointsResult">
             <result property="userId"    column="user_id"    />
-            <result property="totalPoints"    column="total_points "    />
-            <result property="availablePoints"    column="available_points  "    />
-            <result property="frozenPoints"    column="frozen_points  "    />
-            <result property="usedPoints"    column="used_points  "    />
+            <result property="totalPoints"    column="total_points"    />
+            <result property="availablePoints"    column="available_points"    />
+            <result property="frozenPoints"    column="frozen_points"    />
+            <result property="usedPoints"    column="used_points"    />
             <result property="userType"    column="user_type"    />
             <result property="beginTime"    column="begin_time"    />
             <result property="endTime"    column="end_time"    />
@@ -21,6 +21,9 @@
 
     <select id="selectPointsList" resultMap="PointsResult">
         <include refid="selectPointsVo" />
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+        </where>
     </select>
 
     <update id="forzenPointsByUserId">

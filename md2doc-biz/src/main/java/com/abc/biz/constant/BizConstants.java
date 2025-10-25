@@ -8,4 +8,6 @@ public class BizConstants {
 
     public static final String MD_EXTENSION = ".md";
 
+    public static final String ADMIN_ACCOUNT = "admin";
+
 }

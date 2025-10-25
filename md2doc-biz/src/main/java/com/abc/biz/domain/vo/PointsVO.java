@@ -17,6 +17,12 @@ public class PointsVO {
 
     private Integer availablePoints;
 
+    private Integer totalPoints;
+
+    private Integer frozenPoints;
+
+    private Integer usedPoints;
+
     private Integer userType;
 
     private Date beginTime;

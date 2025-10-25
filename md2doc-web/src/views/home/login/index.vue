@@ -76,7 +76,7 @@
             <!-- 注册时需要邮箱验证码 -->
             <el-form-item v-if="!isLogin" prop="emailCode">
               <el-row :gutter="10">
-                <el-col :span="14">
+                <el-col :span="13">
                   <el-input
                     v-model="formData.emailCode"
                     placeholder="请输入邮箱验证码"
@@ -84,7 +84,7 @@
                     clearable
                   />
                 </el-col>
-                <el-col :span="10">
+                <el-col :span="11">
                   <el-button
                     :disabled="isSendEmailCodeDisabled"
                     style="width: 100%"
@@ -119,9 +119,9 @@
             <el-form-item>
               <el-button
                 type="primary"
-                :loading="loading"
                 class="submit-btn"
                 style="width: 100%"
+                :loading="loading"
                 @click="handleSubmit"
               >
                 {{ isLogin ? "登录" : "注册" }}
@@ -245,7 +245,10 @@ export default {
       }
     }
   },
-  mounted() {},
+  mounted() {
+    // 页面加载时检查是否有未完成的倒计时
+    this.checkAndRestoreCountdown()
+  },
   beforeDestroy() {
     // 清除定时器
     if (this.emailCodeTimer) {
@@ -258,6 +261,47 @@ export default {
         this.formData.uuid = res.data.uuid
         this.formData.captchaImg = 'data:image/gif;base64,' + res.data.img
       })
+    },
+
+    // 检查并恢复倒计时状态
+    checkAndRestoreCountdown() {
+      const countdownData = localStorage.getItem('emailCodeCountdown')
+      if (countdownData) {
+        const { timestamp, remainingTime } = JSON.parse(countdownData)
+        const now = Date.now()
+        const elapsed = Math.floor((now - timestamp) / 1000)
+        const actualRemaining = remainingTime - elapsed
+
+        if (actualRemaining > 0) {
+          // 恢复倒计时
+          this.isSendEmailCodeDisabled = true
+          this.emailCodeCountdown = actualRemaining
+          this.emailCodeButtonText = `${this.emailCodeCountdown}秒后重新发送`
+
+          // 继续倒计时
+          this.emailCodeTimer = setInterval(() => {
+            this.emailCodeCountdown--
+            this.emailCodeButtonText = `${this.emailCodeCountdown}秒后重新发送`
+
+            // 更新本地存储
+            const newCountdownData = {
+              timestamp: Date.now(),
+              remainingTime: this.emailCodeCountdown
+            }
+            localStorage.setItem('emailCodeCountdown', JSON.stringify(newCountdownData))
+
+            if (this.emailCodeCountdown <= 0) {
+              this.resetEmailCodeButton()
+              // 清除本地存储
+              localStorage.removeItem('emailCodeCountdown')
+            }
+          }, 1000)
+        } else {
+          // 倒计时已结束，清除状态
+          this.resetEmailCodeButton()
+          localStorage.removeItem('emailCodeCountdown')
+        }
+      }
     },
 
     // 发送邮箱验证码
@@ -280,9 +324,12 @@ export default {
         .then((res) => {
           this.formData.emailUuid = res.data.emailUuid
           this.$message.success('验证码已发送至您的邮箱，请查收')
+          // 启动倒计时
+          this.startEmailCodeCountdown()
         })
         .catch((error) => {
           console.log('操作失败:', error)
+          this.$message.error('验证码发送失败，请稍后重试')
         })
     },
 
@@ -292,12 +339,28 @@ export default {
       this.emailCodeCountdown = 60
       this.emailCodeButtonText = `${this.emailCodeCountdown}秒后重新发送`
 
+      // 保存倒计时状态到本地存储
+      const countdownData = {
+        timestamp: Date.now(),
+        remainingTime: this.emailCodeCountdown
+      }
+      localStorage.setItem('emailCodeCountdown', JSON.stringify(countdownData))
+
       this.emailCodeTimer = setInterval(() => {
         this.emailCodeCountdown--
         this.emailCodeButtonText = `${this.emailCodeCountdown}秒后重新发送`
 
+        // 更新本地存储
+        const newCountdownData = {
+          timestamp: Date.now(),
+          remainingTime: this.emailCodeCountdown
+        }
+        localStorage.setItem('emailCodeCountdown', JSON.stringify(newCountdownData))
+
         if (this.emailCodeCountdown <= 0) {
           this.resetEmailCodeButton()
+          // 清除本地存储
+          localStorage.removeItem('emailCodeCountdown')
         }
       }, 1000)
     },
@@ -328,8 +391,6 @@ export default {
           } else {
             this.handleRegister()
           }
-          this.loading = true
-          this.loading = false
         }
       })
     },

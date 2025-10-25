@@ -1,10 +1,12 @@
 package com.abc.biz.controller;
 
+import com.abc.biz.constant.BizConstants;
 import com.abc.biz.domain.vo.PointsVO;
 import com.abc.common.domain.vo.ApiResult;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.PointsDTO;
 import com.abc.biz.service.PointsService;
+import com.abc.common.util.AssertUtils;
 import com.abc.common.util.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,7 @@ public class PointsController {
     @ApiOperation("查询积分分页")
     @GetMapping("/page")
     public ApiResult<PageResult> getPointsPage(PointsDTO pointsDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         PageResult pointsPages = pointsService.getPointsPageWithUiParam(pointsDTO);
 
         return ApiResult.success(pointsPages);
@@ -36,6 +39,7 @@ public class PointsController {
     @ApiOperation("更新积分")
     @PutMapping
     public ApiResult<Void> updatePoints(@RequestBody PointsDTO pointsDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         pointsService.updatePoints(pointsDTO);
 
         return ApiResult.success();
@@ -44,6 +48,7 @@ public class PointsController {
     @ApiOperation("新增积分")
     @PostMapping
     public ApiResult<Void> savePoints(@RequestBody PointsDTO pointsDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         pointsService.savePoints(pointsDTO);
 
         return ApiResult.success();
@@ -52,6 +57,7 @@ public class PointsController {
     @ApiOperation("删除积分")
     @DeleteMapping
     public ApiResult<Void> deletePoints(@RequestBody PointsDTO pointsDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         pointsService.deletePoints(pointsDTO);
 
         return ApiResult.success();

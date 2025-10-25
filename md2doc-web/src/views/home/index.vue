@@ -89,7 +89,7 @@ export default {
       previewTransMd({
         preContent: this.text
       }).then((res) => {
-        this.previewContent = res.data.content
+        this.previewContent = res.data.transContent
         this.loading = false
       }).catch(error => {
         console.error('操作失败:', error)

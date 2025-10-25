@@ -17,6 +17,8 @@ public class UserDTO {
 
     private String avatar;
 
+    private String email;
+
     // 用于分配角色
     private List<Long> roleIds;
 

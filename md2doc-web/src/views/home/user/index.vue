@@ -4,7 +4,7 @@
     <el-drawer
       :visible.sync="drawer"
       :with-header="false"
-      size="600px"
+      size="650px"
       direction="rtl"
       custom-class="user-drawer"
       :before-close="handleClose"

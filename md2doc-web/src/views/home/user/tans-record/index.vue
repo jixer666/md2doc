@@ -92,7 +92,7 @@ export default {
 
     handleDownload(row) {
       exportTransMd({
-        preContent: row.transContent
+        transId: row.transId
       })
         .then((res) => {
           this.$modal.msgSuccess('导出成功')

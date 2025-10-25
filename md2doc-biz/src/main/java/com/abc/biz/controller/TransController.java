@@ -1,10 +1,12 @@
 package com.abc.biz.controller;
 
+import com.abc.biz.constant.BizConstants;
 import com.abc.biz.domain.vo.TransVO;
 import com.abc.common.domain.vo.ApiResult;
 import com.abc.common.domain.vo.PageResult;
 import com.abc.biz.domain.dto.TransDTO;
 import com.abc.biz.service.TransService;
+import com.abc.common.util.AssertUtils;
 import com.abc.common.util.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +31,7 @@ public class TransController {
     @ApiOperation("查询MD转换分页")
     @GetMapping("/page")
     public ApiResult<PageResult> getTransPage(TransDTO transDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         PageResult transPages = transService.getTransPageWithUiParam(transDTO);
 
         return ApiResult.success(transPages);
@@ -37,6 +40,7 @@ public class TransController {
     @ApiOperation("更新MD转换")
     @PutMapping
     public ApiResult<Void> updateTrans(@RequestBody TransDTO transDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         transService.updateTrans(transDTO);
 
         return ApiResult.success();
@@ -45,6 +49,7 @@ public class TransController {
     @ApiOperation("新增MD转换")
     @PostMapping
     public ApiResult<Void> saveTrans(@RequestBody TransDTO transDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         transService.saveTrans(transDTO);
 
         return ApiResult.success();
@@ -53,6 +58,7 @@ public class TransController {
     @ApiOperation("删除MD转换")
     @DeleteMapping
     public ApiResult<Void> deleteTrans(@RequestBody TransDTO transDTO) {
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT), "无权限");
         transService.deleteTrans(transDTO);
 
         return ApiResult.success();

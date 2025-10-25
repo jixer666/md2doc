@@ -68,7 +68,7 @@ public class PointsServiceImpl extends BaseServiceImpl<PointsMapper, Points> imp
     public void deletePoints(PointsDTO pointsDTO) {
         pointsDTO.checkDeleteParams();
 
-        pointsMapper.deleteBatchIds(pointsDTO.getPointsIds());
+        pointsMapper.deleteBatchIds(pointsDTO.getUserIds());
     }
 
     @Override

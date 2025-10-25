@@ -192,7 +192,7 @@ public class CommonConstants {
      * 用户信息默认值
      */
     public static final String DEFAULT_NICKNAME = "用户" + RandomUtil.randomString(5);
-    public static final String DEFAULT_AVATAR = "";
+    public static final String DEFAULT_AVATAR = "https://youke1.picui.cn/s1/2025/10/25/68fc66f5b7074.png";
 
     /**
      * 系统名称

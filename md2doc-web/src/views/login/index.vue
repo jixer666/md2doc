@@ -47,7 +47,6 @@
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登 录</el-button>
 
-
     </el-form>
 
     <el-dialog title="Or connect with" :visible.sync="showDialog">
@@ -84,13 +83,13 @@ export default {
     }
     return {
       loginForm: {
-        username: '123456',
-        password: '123456',
-        authType: 1,
+        username: '',
+        password: '',
+        authType: 1
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', }],
-        password: [{ required: true, trigger: 'blur', }]
+        username: [{ required: true, trigger: 'blur' }],
+        password: [{ required: true, trigger: 'blur' }]
       },
       passwordType: 'password',
       capsTooltip: false,

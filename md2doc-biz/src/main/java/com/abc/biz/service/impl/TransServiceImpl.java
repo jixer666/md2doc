@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MD转换业务处理
@@ -131,9 +132,21 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
     public ResponseEntity<byte[]> exportTransMd(TransDTO transDTO) {
         transDTO.checkExportParams();
 
-        return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
-            byte[] data = PandocUtil.transMdToWord(transDTO.getPreContent());
-            return download(data, FileUtils.getFilenameByDate(BizConstants.EXPORT_STR, BizConstants.DOCX_EXTENSION));
-        });
+        if (Objects.isNull(transDTO.getTransId())) {
+            return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
+                return exportContent(transDTO.getPreContent());
+            });
+        }
+
+        Trans trans = transMapper.selectById(transDTO.getTransId());
+        AssertUtils.isNotEmpty(trans, "转换记录不存在");
+        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT) || SecurityUtils.getUserId().equals(trans.getUserId()), "无权限导出");
+
+        return exportContent(trans.getTransContent());
+    }
+
+    private ResponseEntity<byte[]> exportContent(String content) {
+        byte[] data = PandocUtil.transMdToWord(content);
+        return download(data, FileUtils.getFilenameByDate(BizConstants.EXPORT_STR, BizConstants.DOCX_EXTENSION));
     }
 }

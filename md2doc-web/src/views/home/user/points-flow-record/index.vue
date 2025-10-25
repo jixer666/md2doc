@@ -1,63 +1,45 @@
 <template>
   <div class="points-container">
     <el-table v-loading="loading" :data="tableList" style="width: 100%">
-      <el-table-column label="流水号" prop="flowId" align="center" width="170" />
       <el-table-column
-        label="变动前积分"
-        prop="beforePoints"
+        label="流水号"
+        prop="flowId"
         align="center"
-        width="120"
+        width="170"
       />
       <el-table-column
         label="变动积分"
         prop="changePoints"
         align="center"
-        width="120"
       >
         <template slot-scope="scope">
-          <span :class="scope.row.changePoints > 0 ? 'positive' : 'negative'">
-            {{ scope.row.changePoints > 0 ? "+" : ""
-            }}{{ scope.row.changePoints }}
-          </span>
-        </template>
-      </el-table-column>
+          <span v-if="scope.row.changePoints > 0">
+            + {{ scope.row.changePoints }}</span>
+          <span v-else>{{ scope.row.changePoints }}</span>
+        </template></el-table-column>
       <el-table-column
-        label="变动后积分"
-        prop="afterPoints"
+        label="总积分"
+        prop="totalPoints"
         align="center"
-        width="120"
       />
       <el-table-column
         label="变动类型"
-        prop="changeType"
+        prop="ruleType"
         align="center"
-        width="120"
+        width="100"
       >
         <template slot-scope="scope">
-          <el-tag
-            :type="
-              scope.row.changeType === '1'
-                ? 'success'
-                : scope.row.changeType === '2'
-                  ? 'danger'
-                  : 'warning'
-            "
-          >
-            {{
-              scope.row.changeType === "1"
-                ? "充值"
-                : scope.row.changeType === "2"
-                  ? "消费"
-                  : "奖励"
-            }}
-          </el-tag>
+          <el-tag v-if="scope.row.ruleType === 1">免费转换</el-tag>
+          <el-tag v-else-if="scope.row.ruleType === 2">AI专业转换</el-tag>
+          <el-tag v-else-if="scope.row.ruleType === 3">导出</el-tag>
+          <el-tag v-else-if="scope.row.ruleType === 4">新人注册</el-tag>
         </template>
       </el-table-column>
       <el-table-column
         label="创建时间"
         prop="createTime"
         align="center"
-        width="160"
+        width="150"
       />
     </el-table>
 
@@ -66,6 +48,8 @@
       :total="searchForm.total"
       :page.sync="searchForm.pageNum"
       :limit.sync="searchForm.pageSize"
+      style="padding: 0px"
+      layout="prev, pager, next"
       @pagination="getList"
     />
   </div>

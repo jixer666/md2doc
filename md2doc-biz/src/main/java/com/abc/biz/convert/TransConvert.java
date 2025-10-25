@@ -10,6 +10,7 @@ import com.abc.biz.domain.entity.Trans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MD转换转换器
@@ -21,7 +22,9 @@ public class TransConvert {
     public static Trans buildDefaultTransByTransDTO(TransDTO transDTO) {
         Trans trans = BeanUtil.copyProperties(transDTO, Trans.class);
         trans.setTransId(IdUtils.getId());
-        trans.setUserId(SecurityUtils.getUserId());
+        if (Objects.isNull(trans.getUserId())) {
+            trans.setUserId(SecurityUtils.getUserId());
+        }
         trans.setCommonParams();
 
         return trans;

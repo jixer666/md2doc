@@ -23,4 +23,8 @@ public class TransVO {
 
     private Date createTime;
 
+    private Date updateTime;
+
+    private Integer status;
+
 }
