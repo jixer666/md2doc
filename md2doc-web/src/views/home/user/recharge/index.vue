@@ -31,18 +31,6 @@
             请联系客服进行充值
             <span class="highlight">QQ: 2770063826</span>
           </p>
-          <div class="contact-actions">
-            <el-button
-              type="primary"
-              size="mini"
-              @click="copyQQ"
-            >复制QQ号</el-button>
-            <el-button
-              type="success"
-              size="mini"
-              @click="openChat"
-            >在线联系</el-button>
-          </div>
           <p class="notice-footer">我们正在努力完善在线支付功能，敬请期待！</p>
         </div>
       </div>
@@ -117,25 +105,6 @@ export default {
       // 重置选择
       this.selectedPlan = null
       this.$emit('update:dialogVisible', false)
-    },
-
-    // 复制QQ号
-    copyQQ() {
-      navigator.clipboard
-        .writeText('2770063826')
-        .then(() => {
-          this.$message.success('QQ号已复制到剪贴板')
-        })
-        .catch(() => {
-          this.$message.error('复制失败，请手动复制')
-        })
-    },
-
-    // 打开在线聊天
-    openChat() {
-      window.open(
-        'https://wpa.qq.com/msgrd?v=3&uin=2770063826&site=qq&menu=yes'
-      )
     }
   }
 }

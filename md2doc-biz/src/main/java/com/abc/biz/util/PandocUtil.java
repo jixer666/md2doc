@@ -1,6 +1,7 @@
 package com.abc.biz.util;
 
 import com.abc.biz.constant.BizConstants;
+import com.abc.common.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -15,6 +16,27 @@ import java.util.UUID;
 @Slf4j
 public class PandocUtil {
 
+    public static String PANDOC_PATH;
+    public static String PANDOC_TEMP_PATH;
+
+    static {
+        try {
+            java.util.Properties props = new java.util.Properties();
+            InputStream inputStream = PandocUtil.class.getClassLoader()
+                    .getResourceAsStream("application.yml");
+            if (inputStream != null) {
+                props.load(inputStream);
+                PANDOC_PATH = props.getProperty("pandoc.path");
+                PANDOC_TEMP_PATH = props.getProperty("oss.local.path") + "temp" + File.separator;
+            } else {
+                throw new GlobalException("application.yml不存在");
+            }
+        } catch (Exception e) {
+            log.error("无法加载pandoc配置类", e);
+            throw new GlobalException("加载pandoc出错");
+        }
+    }
+
     public static byte[] transMdToWord(String content) {
         byte[] wordBytes = null;
 
@@ -22,25 +44,24 @@ public class PandocUtil {
         Path tempDir = null;
         try {
             // 创建临时目录
-            tempDir = Paths.get("D:/project/oss/md2doc/tmp");
+            tempDir = Paths.get(PANDOC_TEMP_PATH);
             if (!Files.exists(tempDir)) {
                 Files.createDirectories(tempDir);
             }
 
             // 生成临时Markdown文件
-            String mdFileName = UUID.randomUUID().toString() + BizConstants.MD_EXTENSION;
+            String mdFileName = UUID.randomUUID() + BizConstants.MD_EXTENSION;
             Path mdFilePath = tempDir.resolve(mdFileName);
             Files.write(mdFilePath, content.getBytes(StandardCharsets.UTF_8));
 
             // 生成临时输出Word文件路径
-            String docxFileName = UUID.randomUUID().toString() + BizConstants.DOCX_EXTENSION;
+            String docxFileName = UUID.randomUUID() + BizConstants.DOCX_EXTENSION;
             Path docxFilePath = tempDir.resolve(docxFileName);
 
             // 构建Pandoc命令
             // 注意：根据操作系统调整pandoc可执行文件路径（Windows通常是pandoc.exe，Linux/Mac是pandoc）
             String[] command = {
-//                    "C:\\Users\\250152\\AppData\\Local\\Pandoc\\pandoc.exe",
-                    "D:\\environment\\pandoc\\3.8.2\\pandoc.exe",
+                    PANDOC_PATH,
                     mdFilePath.toString(),
                     "-o",
                     docxFilePath.toString()

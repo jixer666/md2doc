@@ -1,6 +1,7 @@
 package com.abc.biz.convert;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.abc.biz.constant.BizConstants;
 import com.abc.biz.domain.dto.AiMessageDTO;
 import com.abc.biz.domain.vo.TransVO;
 import com.abc.common.util.IdUtils;
@@ -31,8 +32,9 @@ public class TransConvert {
     }
 
     public static List<AiMessageDTO> buildAiMessageDTOByContent(String content) {
+        String prompt = BizConstants.AI_PROMPT;
         List<AiMessageDTO> messageList = new ArrayList<>();
-        messageList.add(new AiMessageDTO(content));
+        messageList.add(new AiMessageDTO(String.format(prompt, content)));
         return messageList;
     }
 
