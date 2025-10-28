@@ -146,6 +146,9 @@ const actions = {
         commit('SET_ROUTES', rewriteRoutes)
         router.addRoutes(asyncRoutes)
 
+        baseWhiteList.forEach(item => {
+          store.dispatch('settings/setWhiteList', item)
+        })
         generateWhiteUrls([...baseWhiteList, ...res.data])
         resolve(rewriteRoutes)
       })
