@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -51,6 +52,9 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
 
     @Autowired
     private PointsServiceHelper pointsServiceHelper;
+
+    @Autowired
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @Override
     public PageResult getTransPageWithUiParam(TransDTO transDTO) {
@@ -132,17 +136,16 @@ public class TransServiceImpl extends BaseServiceImpl<TransMapper, Trans> implem
     public ResponseEntity<byte[]> exportTransMd(TransDTO transDTO) {
         transDTO.checkExportParams();
 
-        if (Objects.isNull(transDTO.getTransId())) {
-            return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
-                return exportContent(transDTO.getPreContent());
-            });
+        if (Objects.nonNull(transDTO.getTransId())) {
+            Trans trans = transMapper.selectById(transDTO.getTransId());
+            AssertUtils.isNotEmpty(trans, "转换记录不存在");
+            AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT) || SecurityUtils.getUserId().equals(trans.getUserId()), "无权限导出");
+            transDTO.setTransContent(trans.getTransContent());
         }
 
-        Trans trans = transMapper.selectById(transDTO.getTransId());
-        AssertUtils.isNotEmpty(trans, "转换记录不存在");
-        AssertUtils.isTrue(SecurityUtils.getLoginUser().getUsername().equals(BizConstants.ADMIN_ACCOUNT) || SecurityUtils.getUserId().equals(trans.getUserId()), "无权限导出");
-
-        return exportContent(trans.getTransContent());
+        return pointsServiceHelper.executeWithPoints(SecurityUtils.getUserId(), PointsRuleTypeEnum.EXPORT, () -> {
+            return exportContent(transDTO.getTransContent());
+        });
     }
 
     private ResponseEntity<byte[]> exportContent(String content) {

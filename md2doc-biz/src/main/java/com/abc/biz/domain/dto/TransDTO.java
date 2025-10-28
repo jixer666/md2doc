@@ -50,7 +50,7 @@ public class TransDTO {
     public void checkExportParams() {
         AssertUtils.isNotEmpty(this, "转换参数不能为空");
         if (Objects.isNull(transId)) {
-            AssertUtils.isNotEmpty(preContent, "转换内容不能为空");
+            AssertUtils.isNotEmpty(transContent, "转换内容不能为空");
         }
     }
 

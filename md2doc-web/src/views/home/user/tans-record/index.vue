@@ -55,7 +55,7 @@ export default {
       tableList: [],
       searchForm: {
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 5,
         total: 0,
         fileName: ''
       }
@@ -91,17 +91,24 @@ export default {
     },
 
     handleDownload(row) {
-      exportTransMd({
-        transId: row.transId
-      })
-        .then((res) => {
+      this.$confirm('此操作将消耗10积分, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = true
+        exportTransMd({
+          transId: row.transId
+        }).then(res => {
           this.$modal.msgSuccess('导出成功')
           this.loading = false
-        })
-        .catch((error) => {
+        }).catch(error => {
           console.error('操作失败:', error)
           this.loading = false
         })
+      }).catch(() => {
+
+      })
     }
   }
 }

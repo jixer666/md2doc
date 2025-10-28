@@ -10,12 +10,19 @@
           <el-tooltip class="item" effect="dark" placement="bottom">
             <div slot="content">
               <div>若预览数学符号等格式有问题，点击可对特殊符号内容进行转换</div>
-              <div>若转换后问题任然出现，可以登录后用AI专业格式转换解决</div>
+              <!--              <div>若转换后问题任然出现，可以登录后用AI专业格式转换解决</div>-->
+              <div>若转换后问题任然出现，请联系客服解决</div>
             </div>
             <el-button size="small" icon="el-icon-question" @click="previewMdContent">免费格式转换</el-button>
           </el-tooltip>
-          <el-button v-if="isLogin" type="danger" size="small" @click="previewAiMdContent">AI专业转换</el-button>
+          <!--          <el-button v-if="isLogin" type="danger" size="small" @click="previewAiMdContent">AI专业转换</el-button>-->
           <el-button type="primary" size="small" @click="exportMdContent">导出文档</el-button>
+          <el-tooltip class="item" effect="dark" placement="bottom">
+            <div slot="content">
+              <div>有问题添加客服QQ：2770063826</div>
+            </div>
+            <el-button type="success" size="small">联系客服</el-button>
+          </el-tooltip>
 
           <el-avatar v-if="isLogin" :src="$store.getters.avatar" :size="35" class="u-avatar" @click.native="openUserDrawer" />
         </div>
@@ -97,7 +104,13 @@ export default {
       })
     },
     previewAiMdContent() {
-      this.$message.warning('待开发')
+      this.$confirm('此操作将消耗10积分, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message.warning('待开发')
+      }).catch(() => {})
     },
     handleEditorChange() {
       this.previewContent = this.text
@@ -116,15 +129,23 @@ export default {
         this.openLoginDrawer()
         return
       }
-      this.loading = true
-      exportTransMd({
-        preContent: this.previewContent
-      }).then(res => {
-        this.$modal.msgSuccess('导出成功')
-        this.loading = false
-      }).catch(error => {
-        console.error('操作失败:', error)
-        this.loading = false
+      this.$confirm('此操作将消耗10积分, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = true
+        exportTransMd({
+          transContent: this.previewContent
+        }).then(res => {
+          this.$modal.msgSuccess('导出成功')
+          this.loading = false
+        }).catch(error => {
+          console.error('操作失败:', error)
+          this.loading = false
+        })
+      }).catch(() => {
+
       })
     }
   }

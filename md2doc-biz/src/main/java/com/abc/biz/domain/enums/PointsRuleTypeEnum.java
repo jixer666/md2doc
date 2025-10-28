@@ -8,8 +8,8 @@ import lombok.Getter;
 public enum PointsRuleTypeEnum {
 
     FREE_TRANS(1, 0, "免费转换"),
-    AI_TRANS(2, 5, "AI专业转换"),
-    EXPORT(3, 5, "导出"),
+    AI_TRANS(2, 20, "AI专业转换"),
+    EXPORT(3, 10, "导出"),
     NEWCOMER(4, 10, "新人注册");
 
     private Integer type;

@@ -50,9 +50,20 @@ public class PointsServiceHelper {
 
         if (userPoints.isVipUser()) {
             // vip用户直接返回结果，无需扣减积分
-            return callback.execute();
-        }
+            try {
+                T result = callback.execute();
 
+                AsyncManager.me().execute(PointsAsyncTaskFactory.recordPointsFlowTask(userId, points, ruleType, PointsFlowStatusEnum.SUCCESS.getStatus()));
+
+                return result;
+            } catch (Exception e) {
+
+                AsyncManager.me().execute(PointsAsyncTaskFactory.recordPointsFlowTask(userId, points, ruleType, PointsFlowStatusEnum.FAIL.getStatus()));
+
+                log.error("积分业务执行失败 - 用户: {}, 积分: {}, 原因: {}", userId, points, e.getMessage(), e);
+                throw new GlobalException("业务处理失败: " + e.getMessage());
+            }
+        }
 
         // 1. 冻结积分
         pointsService.forzenPoints(userId, points);

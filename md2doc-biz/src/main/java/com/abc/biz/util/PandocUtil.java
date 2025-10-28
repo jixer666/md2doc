@@ -1,9 +1,11 @@
 package com.abc.biz.util;
 
 import com.abc.biz.constant.BizConstants;
-import com.abc.common.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -14,27 +16,22 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Slf4j
+@Component
 public class PandocUtil {
 
     public static String PANDOC_PATH;
     public static String PANDOC_TEMP_PATH;
 
-    static {
-        try {
-            java.util.Properties props = new java.util.Properties();
-            InputStream inputStream = PandocUtil.class.getClassLoader()
-                    .getResourceAsStream("application.yml");
-            if (inputStream != null) {
-                props.load(inputStream);
-                PANDOC_PATH = props.getProperty("pandoc.path");
-                PANDOC_TEMP_PATH = props.getProperty("oss.local.path") + "temp" + File.separator;
-            } else {
-                throw new GlobalException("application.yml不存在");
-            }
-        } catch (Exception e) {
-            log.error("无法加载pandoc配置类", e);
-            throw new GlobalException("加载pandoc出错");
-        }
+    @Value("${oss.local.path}")
+    private String ossPath;
+
+    @Value("${pandoc.path}")
+    private String pandocPath;
+
+    @PostConstruct
+    public void init() {
+        PANDOC_PATH = pandocPath;
+        PANDOC_TEMP_PATH = PANDOC_PATH + "temp/";
     }
 
     public static byte[] transMdToWord(String content) {
